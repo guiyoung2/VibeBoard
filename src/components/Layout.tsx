@@ -64,12 +64,6 @@ function Layout({ children }: LayoutProps) {
               >
                 로그인
               </Link>
-              <Link
-                to="/profile"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                마이페이지
-              </Link>
             </div>
           </div>
         </div>
@@ -82,7 +76,7 @@ function Layout({ children }: LayoutProps) {
       <footer className="bg-gray-800 text-white mt-12">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <p className="text-center text-gray-400">
-            © 2024 VibeBoard. All rights reserved.
+            © 2025 VibeBoard. All rights reserved.
           </p>
         </div>
       </footer>
@@ -91,4 +85,3 @@ function Layout({ children }: LayoutProps) {
 }
 
 export default Layout;
-

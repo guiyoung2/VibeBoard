@@ -7,7 +7,6 @@ import Reviews from "./pages/Reviews";
 import Cafes from "./pages/Cafes";
 import Search from "./pages/Search";
 import Login from "./pages/Login";
-import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -21,7 +20,6 @@ function App() {
           <Route path="/cafes" element={<Cafes />} />
           <Route path="/search" element={<Search />} />
           <Route path="/auth/login" element={<Login />} />
-          <Route path="/profile" element={<Profile />} />
         </Routes>
       </Layout>
     </>
