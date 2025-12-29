@@ -107,7 +107,7 @@ function Games() {
                     <div className="w-full h-48 bg-gray-200 rounded mb-4"></div>
                   )}
                   <h3 className="text-xl font-semibold mb-2">{game.name}</h3>
-                  <p className="text-gray-600 mb-2">
+                  <p className="text-gray-600 mb-2 line-clamp-3">
                     {game.description || "설명이 없습니다."}
                   </p>
                   <div className="flex gap-4 text-sm text-gray-500">

@@ -1,1 +1,21 @@
 @import "tailwindcss";
+
+/* Noonnu 폰트 정의 */
+@font-face {
+  font-family: "Noonnu";
+  src: url("/fonts/NoonnuBasicGothicRegular.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Hakgyoansim";
+  src: url("/fonts/Hakgyoansim_SaekyeonpilR.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+/* Tailwind CSS v4에서 폰트 설정 */
+@theme {
+  --font-noonnu: "Noonnu", sans-serif;
+  --font-hakgyoansim: "Hakgyoansim", sans-serif;
+}

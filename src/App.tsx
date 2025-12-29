@@ -10,19 +10,21 @@ import Login from "./pages/Login";
 
 function App() {
   return (
-    <>
+    <div>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/games" element={<Games />} />
-          <Route path="/games/:id" element={<GameDetail />} />
-          <Route path="/reviews" element={<Reviews />} />
-          <Route path="/cafes" element={<Cafes />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/auth/login" element={<Login />} />
-        </Routes>
+        <div className="font-noonnu">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/games" element={<Games />} />
+            <Route path="/games/:id" element={<GameDetail />} />
+            <Route path="/reviews" element={<Reviews />} />
+            <Route path="/cafes" element={<Cafes />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/auth/login" element={<Login />} />
+          </Routes>
+        </div>
       </Layout>
-    </>
+    </div>
   );
 }
 
