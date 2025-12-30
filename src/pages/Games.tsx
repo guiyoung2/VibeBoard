@@ -97,31 +97,78 @@ function Games() {
                   key={game.id}
                   className="bg-white p-6 rounded-lg shadow-md"
                 >
-                  {game.image_url ? (
-                    <img
-                      src={game.image_url}
-                      alt={game.name}
-                      className="w-full h-48 object-cover rounded mb-4"
-                    />
-                  ) : (
-                    <div className="w-full h-48 bg-gray-200 rounded mb-4"></div>
-                  )}
+                  <div className="w-full aspect-square bg-gray-200 rounded mb-4 overflow-hidden">
+                    {game.image_url ? (
+                      <img
+                        src={game.image_url}
+                        alt={game.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200"></div>
+                    )}
+                  </div>
                   <h3 className="text-xl font-semibold mb-2">{game.name}</h3>
-                  <p className="text-gray-600 mb-2 line-clamp-3">
+                  <p className="text-gray-600 mb-3 line-clamp-3">
                     {game.description || "설명이 없습니다."}
                   </p>
-                  <div className="flex gap-4 text-sm text-gray-500">
-                    {game.category && (
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                        {game.category}
-                      </span>
-                    )}
+
+                  {/* 카테고리 태그들 */}
+                  {game.category && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {game.category
+                        .split(",")
+                        .map((cat) => cat.trim())
+                        .filter((cat) => cat.length > 0)
+                        .map((cat, index) => (
+                          <span
+                            key={index}
+                            className="bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-xs font-medium border border-blue-200"
+                          >
+                            {cat}
+                          </span>
+                        ))}
+                    </div>
+                  )}
+
+                  {/* 게임 정보 */}
+                  <div className="flex flex-wrap gap-3 text-sm text-gray-600">
                     {game.min_players && game.max_players && (
-                      <span>
+                      <span className="flex items-center gap-1 whitespace-nowrap">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                          />
+                        </svg>
                         {game.min_players}-{game.max_players}명
                       </span>
                     )}
-                    {game.play_time && <span>{game.play_time}분</span>}
+                    {game.play_time && (
+                      <span className="flex items-center gap-1 whitespace-nowrap">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        {game.play_time}분
+                      </span>
+                    )}
                   </div>
                 </div>
               ))
