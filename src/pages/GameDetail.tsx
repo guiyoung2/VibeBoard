@@ -1,18 +1,160 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "../lib/supabase";
+
+interface BoardGame {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string | null;
+  min_players: number | null;
+  max_players: number | null;
+  play_time: number | null;
+  difficulty: number | null;
+  image_url: string | null;
+}
 
 function GameDetail() {
   const { id } = useParams<{ id: string }>();
 
+  // 난이도 텍스트 변환 함수
+  const getDifficultyText = (difficulty: number | null): string => {
+    if (!difficulty) return "";
+    const difficultyMap: { [key: number]: string } = {
+      1: "매우 쉬움",
+      2: "쉬움",
+      3: "보통",
+      4: "어려움",
+      5: "매우 어려움",
+    };
+    return difficultyMap[difficulty] || "";
+  };
+
+  // UUID로 보드게임 데이터 가져오기
+  const {
+    data: game,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["boardgame", id],
+    queryFn: async () => {
+      if (!id) throw new Error("ID가 없습니다");
+
+      const { data, error } = await supabase
+        .from("boardgames")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+      return data as BoardGame;
+    },
+    enabled: !!id,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 py-12">
+          <p className="text-center text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !game) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 py-12">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <p>보드게임을 찾을 수 없습니다.</p>
+            <Link
+              to="/games"
+              className="text-blue-600 underline mt-2 inline-block"
+            >
+              목록으로 돌아가기
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">
-          보드게임 상세 {id && `(ID: ${id})`}
-        </h1>
-        
+        <Link
+          to="/games"
+          className="text-blue-600 hover:text-blue-800 mb-4 inline-block"
+        >
+          ← 목록으로
+        </Link>
+
         <div className="bg-white p-8 rounded-lg shadow-md">
-          <div className="w-full h-96 bg-gray-200 rounded mb-6"></div>
-          <p className="text-gray-600">보드게임 상세 정보가 여기에 들어갑니다</p>
+          {/* 이미지 */}
+          <div className="w-full aspect-video bg-gray-200 rounded mb-6 overflow-hidden">
+            {game.image_url ? (
+              <img
+                src={game.image_url}
+                alt={game.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-200"></div>
+            )}
+          </div>
+
+          {/* 제목 */}
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{game.name}</h1>
+
+          {/* 카테고리 */}
+          {game.category && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {game.category
+                .split(",")
+                .map((cat) => cat.trim())
+                .filter((cat) => cat.length > 0)
+                .map((cat, index) => (
+                  <span
+                    key={index}
+                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-xs font-medium border border-blue-200"
+                  >
+                    {cat}
+                  </span>
+                ))}
+            </div>
+          )}
+
+          {/* 설명 */}
+          <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+            {game.description || "설명이 없습니다."}
+          </p>
+
+          {/* 게임 정보 */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-gray-200">
+            {game.min_players && game.max_players && (
+              <div>
+                <p className="text-sm text-gray-500 mb-1">인원수</p>
+                <p className="text-lg font-semibold">
+                  {game.min_players}-{game.max_players}명
+                </p>
+              </div>
+            )}
+            {game.play_time && (
+              <div>
+                <p className="text-sm text-gray-500 mb-1">플레이 시간</p>
+                <p className="text-lg font-semibold">{game.play_time}분</p>
+              </div>
+            )}
+            {game.difficulty && (
+              <div>
+                <p className="text-sm text-gray-500 mb-1">난이도</p>
+                <p className="text-lg font-semibold">
+                  {getDifficultyText(game.difficulty)}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -20,4 +162,3 @@ function GameDetail() {
 }
 
 export default GameDetail;
-

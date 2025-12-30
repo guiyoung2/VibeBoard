@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 
@@ -93,9 +94,10 @@ function Games() {
               </div>
             ) : (
               boardgames.map((game) => (
-                <div
+                <Link
                   key={game.id}
-                  className="bg-white p-6 rounded-lg shadow-md"
+                  to={`/games/${game.id}`}
+                  className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer block"
                 >
                   <div className="w-full aspect-square bg-gray-200 rounded mb-4 overflow-hidden">
                     {game.image_url ? (
@@ -170,7 +172,7 @@ function Games() {
                       </span>
                     )}
                   </div>
-                </div>
+                </Link>
               ))
             )}
           </div>
