@@ -1,18 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
-
-interface BoardGame {
-  id: string;
-  name: string;
-  description: string | null;
-  category: string | null;
-  min_players: number | null;
-  max_players: number | null;
-  play_time: number | null;
-  difficulty: number | null;
-  image_url: string | null;
-}
+import type { BoardGame } from "../types/boardgame";
 
 function GameDetail() {
   const { id } = useParams<{ id: string }>();
@@ -92,15 +81,15 @@ function GameDetail() {
 
         <div className="bg-white p-8 rounded-lg shadow-md">
           {/* 이미지 */}
-          <div className="w-full aspect-video bg-gray-200 rounded mb-6 overflow-hidden">
+          <div className="w-full max-w-xl mx-auto mb-6">
             {game.image_url ? (
               <img
                 src={game.image_url}
                 alt={game.name}
-                className="w-full h-full object-cover"
+                className="w-full h-auto rounded-lg shadow-md object-contain"
               />
             ) : (
-              <div className="w-full h-full bg-gray-200"></div>
+              <div className="w-full aspect-video bg-gray-200 rounded-lg"></div>
             )}
           </div>
 
