@@ -12,44 +12,47 @@ function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 font-hakgyoansim">
+    <div className="min-h-screen bg-bg font-hakgyoansim">
       {/* Header */}
-      <header className="bg-white shadow-md">
+      <header className="bg-bg-card shadow-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="text-2xl font-bold text-gray-900">
+            <Link
+              to="/"
+              className="text-2xl font-bold text-primary hover:text-accent transition-colors"
+            >
               VibeBoard
             </Link>
 
             {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-6">
+            <nav className="hidden md:flex items-center space-x-1">
               <Link
                 to="/games"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   isActive("/games")
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-primary text-white shadow-card"
+                    : "text-text-sub hover:bg-bg-muted hover:text-text-main"
                 }`}
               >
                 게임 추천
               </Link>
               <Link
                 to="/reviews"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   isActive("/reviews")
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-primary text-white shadow-card"
+                    : "text-text-sub hover:bg-bg-muted hover:text-text-main"
                 }`}
               >
                 게임 후기
               </Link>
               <Link
                 to="/cafes"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   isActive("/cafes")
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-primary text-white shadow-card"
+                    : "text-text-sub hover:bg-bg-muted hover:text-text-main"
                 }`}
               >
                 주변 매장 찾기
@@ -60,7 +63,7 @@ function Layout({ children }: LayoutProps) {
             <div className="flex items-center space-x-4">
               <Link
                 to="/auth/login"
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                className="px-4 py-2 text-sm font-medium text-text-sub hover:text-text-main transition-colors"
               >
                 로그인
               </Link>
@@ -73,9 +76,9 @@ function Layout({ children }: LayoutProps) {
       <main>{children}</main>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white mt-12">
+      <footer className="bg-primary text-white mt-12">
         <div className="max-w-7xl mx-auto px-4 py-8">
-          <p className="text-center text-gray-400">
+          <p className="text-center text-text-muted">
             © 2025 VibeBoard. All rights reserved.
           </p>
         </div>

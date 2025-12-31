@@ -14,8 +14,41 @@
   font-style: normal;
 }
 
-/* Tailwind CSS v4에서 폰트 설정 */
+/* Tailwind CSS v4에서 테마 설정 */
 @theme {
+  /* 폰트 */
   --font-noonnu: "Noonnu", sans-serif;
   --font-hakgyoansim: "Hakgyoansim", sans-serif;
+
+  /* 배경 컬러 */
+  --color-bg: #f7f7f5;
+  --color-bg-card: #ffffff;
+  --color-bg-muted: #f1f1ee;
+
+  /* 메인 컬러 */
+  --color-primary: #1f2937;
+  --color-primary-soft: #374151;
+
+  /* 포인트 컬러 */
+  --color-accent: #ef4444;
+  --color-accent-hover: #dc2626;
+
+  /* 텍스트 컬러 */
+  --color-text-main: #111827;
+  --color-text-sub: #6b7280;
+  --color-text-muted: #9ca3af;
+
+  /* 보더 컬러 */
+  --color-border: #e5e7eb;
+
+  /* 그림자 */
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  /* Border Radius */
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+
+  /* Transition Timing */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
