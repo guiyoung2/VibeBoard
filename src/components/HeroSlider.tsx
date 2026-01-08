@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import type { BoardGame } from "../types/boardgame";
@@ -10,6 +9,10 @@ interface HeroSliderProps {
 
 function HeroSlider({ gameNames }: HeroSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [currentX, setCurrentX] = useState(0);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
   // name 값으로 보드게임 가져오기
   const { data: featuredGames, isLoading } = useQuery({
@@ -39,6 +42,83 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
     }
   };
 
+  // 마우스 드래그 시작
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartX(e.clientX);
+    setCurrentX(e.clientX);
+  };
+
+  // 마우스 드래그 중
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setCurrentX(e.clientX);
+  };
+
+  // 마우스 드래그 종료
+  const handleMouseUp = () => {
+    if (!isDragging || !featuredGames) return;
+
+    const diff = startX - currentX;
+    const threshold = 50; // 최소 드래그 거리
+
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        // 오른쪽으로 드래그 (다음 슬라이드)
+        nextSlide();
+      } else {
+        // 왼쪽으로 드래그 (이전 슬라이드)
+        prevSlide();
+      }
+    }
+
+    setIsDragging(false);
+    setStartX(0);
+    setCurrentX(0);
+  };
+
+  // 터치 이벤트 (모바일)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    setStartX(e.touches[0].clientX);
+    setCurrentX(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    setCurrentX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging || !featuredGames) return;
+
+    const diff = startX - currentX;
+    const threshold = 50;
+
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+
+    setIsDragging(false);
+    setStartX(0);
+    setCurrentX(0);
+  };
+
+  // 5초마다 자동 슬라이드
+  useEffect(() => {
+    if (!featuredGames || featuredGames.length <= 1 || isDragging) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % featuredGames.length);
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, [featuredGames, isDragging]);
+
   if (isLoading) {
     return (
       <div className="text-center py-12">
@@ -58,7 +138,17 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
   return (
     <div className="relative bg-white rounded-lg shadow-lg overflow-hidden">
       {/* 슬라이드 컨테이너 */}
-      <div className="relative h-96 md:h-[500px]">
+      <div
+        ref={sliderRef}
+        className="relative min-h-[600px] md:h-[500px] cursor-grab active:cursor-grabbing"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {featuredGames.map((game, index) => (
           <div
             key={game.id}
@@ -67,15 +157,16 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
                 ? "opacity-100"
                 : "opacity-0 pointer-events-none"
             }`}
+            style={{ pointerEvents: isDragging ? "none" : "auto" }}
           >
-            <div className="grid md:grid-cols-2 h-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 h-full">
               {/* 이미지 영역 */}
-              <div className="relative h-64 md:h-full bg-gray-100">
+              <div className="relative h-64 md:h-full bg-gray-100 flex items-center justify-center p-4 overflow-hidden">
                 {game.image_url ? (
                   <img
                     src={game.image_url}
                     alt={game.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200"></div>
@@ -83,13 +174,11 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
               </div>
 
               {/* 텍스트 영역 */}
-              <div className="flex flex-col justify-center px-8 py-12 md:px-12 md:py-16 bg-gradient-to-br from-blue-50 to-blue-100">
-                <Link to={`/games/${game.id}`}>
-                  <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 hover:text-blue-600 transition-colors">
-                    {game.name}
-                  </h3>
-                </Link>
-                <p className="text-gray-700 mb-6 text-lg line-clamp-4">
+              <div className="flex flex-col justify-center h-full px-8 py-8 md:px-12 md:py-12 bg-gradient-to-br from-blue-50 to-blue-100">
+                <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                  {game.name}
+                </h3>
+                <p className="text-gray-700 mb-6 text-lg line-clamp-3 md:line-clamp-4">
                   {game.description || "설명이 없습니다."}
                 </p>
 
@@ -112,7 +201,7 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
                 )}
 
                 {/* 게임 정보 */}
-                <div className="flex flex-wrap gap-4 text-gray-700 mb-6">
+                <div className="flex flex-wrap gap-4 text-gray-700">
                   {game.min_players && game.max_players && (
                     <span className="flex items-center gap-2">
                       <svg
@@ -150,77 +239,28 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
                     </span>
                   )}
                 </div>
-
-                <Link
-                  to={`/games/${game.id}`}
-                  className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md w-fit"
-                >
-                  자세히 보기
-                </Link>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* 네비게이션 버튼 */}
+      {/* 인디케이터 */}
       {featuredGames.length > 1 && (
-        <>
-          <button
-            onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all hover:scale-110"
-            aria-label="이전"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-          <button
-            onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all hover:scale-110"
-            aria-label="다음"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
-
-          {/* 인디케이터 */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-            {featuredGames.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`h-2 rounded-full transition-all ${
-                  index === currentIndex
-                    ? "w-8 bg-blue-600"
-                    : "w-2 bg-gray-300 hover:bg-gray-400"
-                }`}
-                aria-label={`슬라이드 ${index + 1}`}
-              />
-            ))}
-          </div>
-        </>
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          {featuredGames.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`h-2 rounded-full transition-all ${
+                index === currentIndex
+                  ? "w-8 bg-blue-600"
+                  : "w-2 bg-gray-300 hover:bg-gray-400"
+              }`}
+              aria-label={`슬라이드 ${index + 1}`}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
