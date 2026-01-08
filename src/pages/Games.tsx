@@ -1,11 +1,22 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import type { BoardGame } from "../types/boardgame";
 import GameCard from "../components/GameCard";
 
+interface FilterState {
+  players: number | null; // 2, 3, 4, 5, 6, 7 (7은 7인 이상)
+  difficulty: number | null; // 1: 매우 쉬움, 2: 쉬움, 3: 보통, 4: 어려움, 5: 매우 어려움
+  playTime: string | null; // "15이내", "15-30", "30-60", "60이상"
+}
+
 function Games() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState<FilterState>({
+    players: null,
+    difficulty: null,
+    playTime: null,
+  });
 
   // Supabase에서 보드게임 데이터 가져오기
   const {
@@ -29,6 +40,82 @@ function Games() {
     e.preventDefault();
     // 추후 실제 검색 로직 구현
     console.log("검색어:", searchQuery);
+  };
+
+  // 필터링된 게임 목록
+  const filteredGames = useMemo(() => {
+    if (!boardgames) return [];
+
+    return boardgames.filter((game) => {
+      // 검색어 필터
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        if (
+          !game.name.toLowerCase().includes(query) &&
+          !game.description?.toLowerCase().includes(query)
+        ) {
+          return false;
+        }
+      }
+
+      // 인원수 필터
+      if (filters.players !== null) {
+        if (filters.players === 7) {
+          // 7인 이상
+          if (!game.max_players || game.max_players < 7) {
+            return false;
+          }
+        } else {
+          // 정확한 인원수
+          if (
+            !game.min_players ||
+            !game.max_players ||
+            game.min_players > filters.players ||
+            game.max_players < filters.players
+          ) {
+            return false;
+          }
+        }
+      }
+
+      // 난이도 필터
+      if (filters.difficulty !== null) {
+        if (game.difficulty !== filters.difficulty) {
+          return false;
+        }
+      }
+
+      // 게임 시간 필터
+      if (filters.playTime !== null && game.play_time !== null) {
+        const playTime = game.play_time;
+        switch (filters.playTime) {
+          case "15이내":
+            if (playTime > 15) return false;
+            break;
+          case "15-30":
+            if (playTime < 15 || playTime > 30) return false;
+            break;
+          case "30-60":
+            if (playTime < 30 || playTime > 60) return false;
+            break;
+          case "60이상":
+            if (playTime < 60) return false;
+            break;
+        }
+      }
+
+      return true;
+    });
+  }, [boardgames, searchQuery, filters]);
+
+  const handleFilterChange = (
+    type: keyof FilterState,
+    value: number | string | null
+  ) => {
+    setFilters((prev) => ({
+      ...prev,
+      [type]: prev[type] === value ? null : value, // 토글 방식
+    }));
   };
 
   return (
@@ -57,7 +144,102 @@ function Games() {
 
         {/* 필터 섹션 */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-          <p className="text-gray-600">필터 기능이 여기에 들어갑니다</p>
+          <div className="space-y-6">
+            {/* 인원수 필터 */}
+            <div>
+              <label className="block text-base font-bold text-gray-900 mb-3">
+                인원수
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {[2, 3, 4, 5, 6, 7].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => handleFilterChange("players", num)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      filters.players === num
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {num === 7 ? "7인 이상" : `${num}인`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 난이도 필터 */}
+            <div>
+              <label className="block text-base font-bold text-gray-900 mb-3">
+                난이도
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: 1, label: "매우 쉬움" },
+                  { value: 2, label: "쉬움" },
+                  { value: 3, label: "보통" },
+                  { value: 4, label: "어려움" },
+                  { value: 5, label: "매우 어려움" },
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    onClick={() => handleFilterChange("difficulty", item.value)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      filters.difficulty === item.value
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 게임 시간 필터 */}
+            <div>
+              <label className="block text-base font-bold text-gray-900 mb-3">
+                게임 시간
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: "15이내", label: "15분 이내" },
+                  { value: "15-30", label: "15분~30분" },
+                  { value: "30-60", label: "30분~60분" },
+                  { value: "60이상", label: "60분 이상" },
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    onClick={() => handleFilterChange("playTime", item.value)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      filters.playTime === item.value
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 필터 초기화 버튼 */}
+            {(filters.players !== null ||
+              filters.difficulty !== null ||
+              filters.playTime !== null) && (
+              <button
+                onClick={() =>
+                  setFilters({
+                    players: null,
+                    difficulty: null,
+                    playTime: null,
+                  })
+                }
+                className="text-sm text-blue-600 hover:text-blue-700 underline"
+              >
+                필터 초기화
+              </button>
+            )}
+          </div>
         </div>
 
         {/* 로딩 상태 */}
@@ -77,12 +259,26 @@ function Games() {
         {/* 게임 목록 */}
         {boardgames && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {boardgames.length === 0 ? (
+            {filteredGames.length === 0 ? (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-600">보드게임이 없습니다.</p>
+                <p className="text-gray-600">
+                  {searchQuery ||
+                  filters.players !== null ||
+                  filters.difficulty !== null ||
+                  filters.playTime !== null
+                    ? "검색 결과가 없습니다."
+                    : "보드게임이 없습니다."}
+                </p>
               </div>
             ) : (
-              boardgames.map((game) => <GameCard key={game.id} game={game} />)
+              <>
+                <div className="col-span-full text-sm text-gray-600 mb-2">
+                  총 {filteredGames.length}개의 보드게임
+                </div>
+                {filteredGames.map((game) => (
+                  <GameCard key={game.id} game={game} />
+                ))}
+              </>
             )}
           </div>
         )}
