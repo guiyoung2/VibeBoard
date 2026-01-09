@@ -3,7 +3,7 @@ import HeroSlider from "../components/HeroSlider";
 
 function Home() {
   // 인기 보드게임 이름 목록 (Supabase의 name 값과 정확히 일치해야 함)
-  const featuredGameNames = ["할리갈리", "루미큐브", "스컬킹"];
+  const featuredGameNames = ["할리갈리", "루미큐브", "스컬킹", "부루마블"];
 
   return (
     <div className="min-h-screen bg-bg">
@@ -11,7 +11,7 @@ function Home() {
         {/* 인기 보드게임 히어로 섹션 */}
         <section className="mb-12">
           <h2 className="text-3xl font-bold text-primary mb-6">
-            🔥 지금 인기 있는 보드게임
+            🔥 인기 있는 보드게임
           </h2>
           <HeroSlider gameNames={featuredGameNames} />
         </section>
