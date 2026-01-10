@@ -3,13 +3,24 @@ import type { BoardGame } from "../types/boardgame";
 
 interface GameCardProps {
   game: BoardGame;
+  index?: number; // 애니메이션 딜레이용
 }
 
-function GameCard({ game }: GameCardProps) {
+function GameCard({ game, index }: GameCardProps) {
   return (
     <Link
       to={`/games/${game.id}`}
-      className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer block"
+      className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer block ${
+        index !== undefined ? "animate-fade-in" : ""
+      }`}
+      style={
+        index !== undefined
+          ? {
+              animationDelay: `${index * 0.1}s`,
+              animationFillMode: "both",
+            }
+          : {}
+      }
     >
       <div className="w-full aspect-square bg-gray-200 rounded mb-4 overflow-hidden">
         {game.image_url ? (

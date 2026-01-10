@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import type { BoardGame } from "../types/boardgame";
@@ -17,6 +17,10 @@ function Games() {
     difficulty: null,
     playTime: null,
   });
+  const [displayCount, setDisplayCount] = useState(6); // 초기 표시 개수
+  const [prevDisplayCount, setPrevDisplayCount] = useState(0); // 이전 표시 개수 (애니메이션용)
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const ITEMS_PER_PAGE = 3; // 한 번에 추가로 로드할 개수
 
   // Supabase에서 보드게임 데이터 가져오기
   const {
@@ -40,6 +44,9 @@ function Games() {
     e.preventDefault();
     // 추후 실제 검색 로직 구현
     console.log("검색어:", searchQuery);
+    // 검색 시 displayCount 리셋
+    setPrevDisplayCount(0);
+    setDisplayCount(ITEMS_PER_PAGE);
   };
 
   // 필터링된 게임 목록
@@ -108,14 +115,56 @@ function Games() {
     });
   }, [boardgames, searchQuery, filters]);
 
+  // 표시할 게임 목록 (무한 스크롤용)
+  const displayedGames = useMemo(() => {
+    return filteredGames.slice(0, displayCount);
+  }, [filteredGames, displayCount]);
+
+  // Intersection Observer로 무한 스크롤 구현
+  useEffect(() => {
+    const loadMoreElement = loadMoreRef.current;
+    if (!loadMoreElement || displayedGames.length >= filteredGames.length) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          // 하단에 도달하면 더 많은 항목 표시
+          setDisplayCount((prev) => {
+            setPrevDisplayCount(prev); // 이전 값 저장 (애니메이션용)
+            return Math.min(prev + ITEMS_PER_PAGE, filteredGames.length);
+          });
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "100px", // 뷰포트(화면) 하단에서 100px 전에 미리 로드
+        // 브라우저 화면(viewport) 기준
+      }
+    );
+
+    observer.observe(loadMoreElement);
+
+    return () => {
+      observer.unobserve(loadMoreElement);
+    };
+  }, [displayedGames.length, filteredGames.length]);
+
   const handleFilterChange = (
     type: keyof FilterState,
     value: number | string | null
   ) => {
-    setFilters((prev) => ({
-      ...prev,
-      [type]: prev[type] === value ? null : value, // 토글 방식
-    }));
+    setFilters((prev) => {
+      const newFilters = {
+        ...prev,
+        [type]: prev[type] === value ? null : value, // 토글 방식
+      };
+      // 필터 변경 시 displayCount 리셋
+      setPrevDisplayCount(0);
+      setDisplayCount(ITEMS_PER_PAGE);
+      return newFilters;
+    });
   };
 
   return (
@@ -129,7 +178,12 @@ function Games() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                // 검색어 변경 시 displayCount 리셋
+                setPrevDisplayCount(0);
+                setDisplayCount(ITEMS_PER_PAGE);
+              }}
               placeholder="보드게임 이름으로 검색..."
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -227,13 +281,15 @@ function Games() {
               filters.difficulty !== null ||
               filters.playTime !== null) && (
               <button
-                onClick={() =>
+                onClick={() => {
                   setFilters({
                     players: null,
                     difficulty: null,
                     playTime: null,
-                  })
-                }
+                  });
+                  setPrevDisplayCount(0);
+                  setDisplayCount(ITEMS_PER_PAGE);
+                }}
                 className="text-sm text-blue-600 hover:text-blue-700 underline"
               >
                 필터 초기화
@@ -274,10 +330,29 @@ function Games() {
               <>
                 <div className="col-span-full text-sm text-gray-600 mb-2">
                   총 {filteredGames.length}개의 보드게임
+                  {displayedGames.length < filteredGames.length &&
+                    ` (${displayedGames.length}개 표시 중)`}
                 </div>
-                {filteredGames.map((game) => (
-                  <GameCard key={game.id} game={game} />
-                ))}
+                {displayedGames.map((game, index) => {
+                  // 새로 추가된 카드들에만 애니메이션 적용
+                  const isNewCard = index >= prevDisplayCount;
+                  return (
+                    <GameCard
+                      key={game.id}
+                      game={game}
+                      index={isNewCard ? index - prevDisplayCount : undefined}
+                    />
+                  );
+                })}
+                {/* 무한 스크롤 트리거 요소 */}
+                {displayedGames.length < filteredGames.length && (
+                  <div
+                    ref={loadMoreRef}
+                    className="col-span-full flex justify-center items-center py-8"
+                  >
+                    <div className="text-gray-400 text-sm">로딩 중...</div>
+                  </div>
+                )}
               </>
             )}
           </div>
