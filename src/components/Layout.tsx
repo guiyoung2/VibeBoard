@@ -8,7 +8,7 @@ interface LayoutProps {
 function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, signOut } = useAuthStore();
+  const { user, nickname, signOut } = useAuthStore();
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -72,7 +72,7 @@ function Layout({ children }: LayoutProps) {
               {user ? (
                 <div className="flex items-center space-x-3">
                   <span className="text-sm text-text-sub">
-                    {user.email?.split("@")[0]}
+                    {nickname || user.email?.split("@")[0]}님
                   </span>
                   <button
                     onClick={handleSignOut}
