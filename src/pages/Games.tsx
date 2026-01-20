@@ -328,11 +328,6 @@ function Games() {
               </div>
             ) : (
               <>
-                <div className="col-span-full text-sm text-gray-600 mb-2">
-                  총 {filteredGames.length}개의 보드게임
-                  {displayedGames.length < filteredGames.length &&
-                    ` (${displayedGames.length}개 표시 중)`}
-                </div>
                 {displayedGames.map((game, index) => {
                   // 새로 추가된 카드들에만 애니메이션 적용
                   const isNewCard = index >= prevDisplayCount;

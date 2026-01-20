@@ -10,7 +10,7 @@ function Home() {
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* 인기 보드게임 히어로 섹션 */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-primary mb-6">
+          <h2 className="text-2xl font-bold text-primary mb-6">
             🔥 인기 있는 보드게임
           </h2>
           <HeroSlider gameNames={featuredGameNames} />

@@ -1,4 +1,5 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../stores/authStore";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -6,9 +7,16 @@ interface LayoutProps {
 
 function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuthStore();
 
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
   };
 
   return (
@@ -61,12 +69,26 @@ function Layout({ children }: LayoutProps) {
 
             {/* User Menu */}
             <div className="flex items-center space-x-4">
-              <Link
-                to="/auth/login"
-                className="px-4 py-2 text-sm font-medium text-text-sub hover:text-text-main transition-colors"
-              >
-                로그인
-              </Link>
+              {user ? (
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm text-text-sub">
+                    {user.email?.split("@")[0]}
+                  </span>
+                  <button
+                    onClick={handleSignOut}
+                    className="px-4 py-2 text-sm font-medium text-text-sub hover:text-text-main transition-colors"
+                  >
+                    로그아웃
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  to="/auth/login"
+                  className="px-4 py-2 text-sm font-medium text-text-sub hover:text-text-main transition-colors"
+                >
+                  로그인
+                </Link>
+              )}
             </div>
           </div>
         </div>

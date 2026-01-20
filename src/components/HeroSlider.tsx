@@ -175,7 +175,7 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
 
               {/* 텍스트 영역 */}
               <div className="flex flex-col justify-center h-full px-8 py-8 md:px-12 md:py-12 bg-gradient-to-br from-blue-50 to-blue-100">
-                <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                   {game.name}
                 </h3>
                 <p className="text-gray-700 mb-6 text-lg line-clamp-3 md:line-clamp-4">
