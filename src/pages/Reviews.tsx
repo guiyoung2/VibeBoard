@@ -1,27 +1,199 @@
+import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
+import type { Review } from "../types/review";
+
+// 예시 리뷰 데이터 (하드코딩)
+const exampleReviews: Review[] = [
+    {
+      id: "1",
+      boardgame_id: "1",
+      user_id: "1",
+      rating: 5,
+      content:
+        "정말 재미있는 보드게임이에요! 친구들과 함께 플레이했는데 모두가 즐거워했어요. 전략적 요소도 있고 운도 있어서 매번 다른 결과가 나와서 좋습니다. 특히 중반부부터 긴장감이 올라가는 게임플레이가 인상적이었어요.",
+      created_at: "2024-01-15T10:30:00Z",
+      updated_at: "2024-01-15T10:30:00Z",
+      boardgame: {
+        id: "1",
+        name: "카탄의 개척자들",
+        image_url: null,
+      },
+      profile: {
+        id: "1",
+        nickname: "보드게임러버",
+      },
+    },
+    {
+      id: "2",
+      boardgame_id: "2",
+      user_id: "2",
+      rating: 4,
+      content:
+        "처음 해보는 보드게임인데 생각보다 쉽게 배울 수 있어서 좋았어요. 규칙이 복잡해 보였지만 실제로는 직관적이고, 게임 시간도 적당해서 부담스럽지 않았습니다. 다만 승리 조건이 조금 애매한 부분이 있어서 4점 드립니다.",
+      created_at: "2024-01-20T14:15:00Z",
+      updated_at: "2024-01-20T14:15:00Z",
+      boardgame: {
+        id: "2",
+        name: "스플렌더",
+        image_url: null,
+      },
+      profile: {
+        id: "2",
+        nickname: "게임마스터",
+      },
+    },
+    {
+      id: "3",
+      boardgame_id: "3",
+      user_id: "3",
+      rating: 5,
+      content:
+        "가족과 함께 즐기기 완벽한 게임입니다! 아이들도 쉽게 이해할 수 있고, 어른들도 전략을 세우며 즐길 수 있어서 세대를 불문하고 모두가 즐거워했어요. 특히 게임 중간중간 웃음이 터져나와서 분위기가 정말 좋았습니다.",
+      created_at: "2024-01-25T09:45:00Z",
+      updated_at: "2024-01-25T09:45:00Z",
+      boardgame: {
+        id: "3",
+        name: "할리갈리",
+        image_url: null,
+      },
+      profile: {
+        id: "3",
+        nickname: "패밀리게이머",
+      },
+    },
+  ];
+
+type SortOption = "none" | "rating-high" | "rating-low";
+
 function Reviews() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState<SortOption>("none");
+
+  // 평점을 별표로 표시하는 함수 (채워진 별만)
+  const renderStars = (rating: number) => {
+    return "⭐".repeat(rating);
+  };
+
+  // 검색어로 필터링 및 정렬된 리뷰 목록
+  const filteredReviews = useMemo(() => {
+    let filtered = exampleReviews;
+
+    // 검색 필터링
+    if (searchQuery.trim()) {
+      filtered = filtered.filter((review) =>
+        review.boardgame?.name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // 정렬
+    if (sortOption === "rating-high") {
+      filtered = [...filtered].sort((a, b) => b.rating - a.rating);
+    } else if (sortOption === "rating-low") {
+      filtered = [...filtered].sort((a, b) => a.rating - b.rating);
+    }
+
+    return filtered;
+  }, [searchQuery, sortOption]);
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-bg">
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">게임 후기</h1>
-        
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-bold text-primary">게임 후기</h1>
+        </div>
+
+        {/* 검색창 및 필터 */}
+        <div className="mb-6 flex items-center justify-between">
+          <input
+            type="text"
+            placeholder="보드게임 이름으로 검색..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 max-w-2xl px-4 py-2 border border-border rounded-lg bg-bg-card text-text-main placeholder:text-text-sub focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value as SortOption)}
+            className="px-4 py-2 border border-border rounded-lg bg-bg-card text-text-main focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="none">정렬 없음</option>
+            <option value="rating-high">별점 높은순</option>
+            <option value="rating-low">별점 낮은순</option>
+          </select>
+        </div>
+
         <div className="space-y-6">
-          {/* 추후 리뷰 카드로 교체 */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-gray-300 rounded-full mr-4"></div>
-              <div>
-                <h3 className="font-semibold">사용자 이름</h3>
-                <p className="text-sm text-gray-500">
-                  {new Date().toLocaleDateString("ko-KR", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
+          {filteredReviews.length > 0 ? (
+            filteredReviews.map((review) => (
+            <Link
+              key={review.id}
+              to={`/reviews/${review.id}`}
+              className="block bg-bg-card p-6 rounded-xl shadow-card border border-border hover:shadow-hover transition-shadow cursor-pointer"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                    <span className="text-primary font-semibold">
+                      {review.profile?.nickname?.[0] || "U"}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-text-main">
+                      {review.profile?.nickname || "익명 사용자"}
+                    </h3>
+                    <p className="text-sm text-text-sub">
+                      {new Date(review.created_at).toLocaleDateString(
+                        "ko-KR",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg mb-1">
+                    {renderStars(review.rating)}
+                  </div>
+                  <p className="text-sm text-text-sub">
+                    {review.rating} / 5점
+                  </p>
+                </div>
               </div>
+
+              {review.boardgame && (
+                <div className="mb-4">
+                  <div className="inline-flex items-center gap-2">
+                    {review.boardgame.image_url && (
+                      <img
+                        src={review.boardgame.image_url}
+                        alt={review.boardgame.name}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                    )}
+                    <span className="font-medium text-accent">
+                      {review.boardgame.name}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <p className="text-text-main leading-relaxed whitespace-pre-wrap line-clamp-3">
+                {review.content}
+              </p>
+            </Link>
+            ))
+          ) : (
+            <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border text-center">
+              <p className="text-text-sub">
+                "{searchQuery}"에 대한 검색 결과가 없습니다.
+              </p>
             </div>
-            <p className="text-gray-700">리뷰 내용이 들어갑니다</p>
-          </div>
+          )}
         </div>
       </div>
     </div>
