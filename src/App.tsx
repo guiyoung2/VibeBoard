@@ -5,6 +5,7 @@ import Games from "./pages/Games";
 import GameDetail from "./pages/GameDetail";
 import Reviews from "./pages/Reviews";
 import ReviewDetail from "./pages/ReviewDetail";
+import ReviewCreate from "./pages/ReviewCreate";
 import Cafes from "./pages/Cafes";
 import Search from "./pages/Search";
 import Login from "./pages/Login";
@@ -20,6 +21,7 @@ function App() {
             <Route path="/games" element={<Games />} />
             <Route path="/games/:id" element={<GameDetail />} />
             <Route path="/reviews" element={<Reviews />} />
+            <Route path="/reviews/create" element={<ReviewCreate />} />
             <Route path="/reviews/:id" element={<ReviewDetail />} />
             <Route path="/cafes" element={<Cafes />} />
             <Route path="/search" element={<Search />} />

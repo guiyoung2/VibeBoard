@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../stores/authStore";
 import type { Review } from "../types/review";
 
 // 예시 리뷰 데이터 (하드코딩)
@@ -68,6 +69,7 @@ type SortOption = "none" | "rating-high" | "rating-low";
 function Reviews() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("none");
+  const { user } = useAuthStore();
 
   // 평점을 별표로 표시하는 함수 (채워진 별만)
   const renderStars = (rating: number) => {
@@ -102,6 +104,19 @@ function Reviews() {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-primary">게임 후기</h1>
+          <div className="flex items-center gap-3">
+            {!user && (
+              <span className="text-sm text-text-sub">
+                로그인 후 작성할 수 있습니다
+              </span>
+            )}
+            <Link
+              to={user ? "/reviews/create" : "/auth/login"}
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-soft transition-colors font-medium"
+            >
+              리뷰 작성
+            </Link>
+          </div>
         </div>
 
         {/* 검색창 및 필터 */}
