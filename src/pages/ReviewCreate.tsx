@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
@@ -116,12 +116,12 @@ function ReviewCreate() {
     <div className="min-h-screen bg-bg">
       <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="mb-6">
-          <button
-            onClick={() => navigate("/reviews")}
-            className="text-accent hover:text-accent-hover mb-4 inline-block transition-colors"
+          <Link
+            to="/reviews"
+            className="text-accent hover:text-accent/80 mb-4 inline-block transition-colors"
           >
             ← 목록으로
-          </button>
+          </Link>
           <h1 className="text-4xl font-bold text-primary">리뷰 작성</h1>
         </div>
 
@@ -167,14 +167,14 @@ function ReviewCreate() {
                   onClick={() =>
                     setFormData((prev) => ({ ...prev, rating }))
                   }
-                  className={`text-4xl transition-all hover:scale-110 cursor-pointer ${
-                    formData.rating >= rating
-                      ? "text-yellow-400"
-                      : "text-gray-300"
-                  }`}
+                  className="w-12 h-12 flex items-center justify-center text-4xl transition-all hover:scale-110 cursor-pointer"
                   title={`${rating}점`}
                 >
-                  ⭐
+                  {formData.rating >= rating ? (
+                    <span className="text-yellow-400">⭐</span>
+                  ) : (
+                    <span className="text-gray-400">☆</span>
+                  )}
                 </button>
               ))}
               {formData.rating > 0 && (
