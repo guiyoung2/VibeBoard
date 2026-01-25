@@ -8,6 +8,7 @@ import ReviewDetail from "./pages/ReviewDetail";
 import Cafes from "./pages/Cafes";
 import Search from "./pages/Search";
 import Login from "./pages/Login";
+import AuthCallback from "./pages/AuthCallback";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/cafes" element={<Cafes />} />
             <Route path="/search" element={<Search />} />
             <Route path="/auth/login" element={<Login />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
           </Routes>
         </div>
       </Layout>

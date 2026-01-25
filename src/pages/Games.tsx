@@ -42,8 +42,6 @@ function Games() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // 추후 실제 검색 로직 구현
-    console.log("검색어:", searchQuery);
     // 검색 시 displayCount 리셋
     setPrevDisplayCount(0);
     setDisplayCount(ITEMS_PER_PAGE);
