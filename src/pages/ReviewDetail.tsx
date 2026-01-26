@@ -11,16 +11,6 @@ function ReviewDetail() {
   const { user } = useAuthStore();
   const [commentContent, setCommentContent] = useState("");
 
-  // 예시 리뷰 데이터 (하드코딩) - 주석처리: Supabase 연동으로 대체
-  // const exampleReviews: Review[] = [
-  //   ...
-  // ];
-
-  // 예시 댓글 데이터 (하드코딩) - 주석처리: Supabase 연동으로 대체
-  // const exampleComments: Comment[] = [
-  //   ...
-  // ];
-
   // Supabase에서 특정 리뷰 가져오기
   const { data: review, isLoading: isLoadingReview, error: reviewError } = useQuery({
     queryKey: ["review", id],

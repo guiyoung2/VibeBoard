@@ -5,67 +5,6 @@ import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 import type { Review } from "../types/review";
 
-// 예시 리뷰 데이터 (하드코딩) - 주석처리: Supabase 연동으로 대체
-// const exampleReviews: Review[] = [
-//     {
-//       id: "1",
-//       boardgame_id: "1",
-//       user_id: "1",
-//       rating: 5,
-//       content:
-//         "정말 재미있는 보드게임이에요! 친구들과 함께 플레이했는데 모두가 즐거워했어요. 전략적 요소도 있고 운도 있어서 매번 다른 결과가 나와서 좋습니다. 특히 중반부부터 긴장감이 올라가는 게임플레이가 인상적이었어요.",
-//       created_at: "2024-01-15T10:30:00Z",
-//       updated_at: "2024-01-15T10:30:00Z",
-//       boardgame: {
-//         id: "1",
-//         name: "카탄의 개척자들",
-//         image_url: null,
-//       },
-//       profile: {
-//         id: "1",
-//         nickname: "보드게임러버",
-//       },
-//     },
-//     {
-//       id: "2",
-//       boardgame_id: "2",
-//       user_id: "2",
-//       rating: 4,
-//       content:
-//         "처음 해보는 보드게임인데 생각보다 쉽게 배울 수 있어서 좋았어요. 규칙이 복잡해 보였지만 실제로는 직관적이고, 게임 시간도 적당해서 부담스럽지 않았습니다. 다만 승리 조건이 조금 애매한 부분이 있어서 4점 드립니다.",
-//       created_at: "2024-01-20T14:15:00Z",
-//       updated_at: "2024-01-20T14:15:00Z",
-//       boardgame: {
-//         id: "2",
-//         name: "스플렌더",
-//         image_url: null,
-//       },
-//       profile: {
-//         id: "2",
-//         nickname: "게임마스터",
-//       },
-//     },
-//     {
-//       id: "3",
-//       boardgame_id: "3",
-//       user_id: "3",
-//       rating: 5,
-//       content:
-//         "가족과 함께 즐기기 완벽한 게임입니다! 아이들도 쉽게 이해할 수 있고, 어른들도 전략을 세우며 즐길 수 있어서 세대를 불문하고 모두가 즐거워했어요. 특히 게임 중간중간 웃음이 터져나와서 분위기가 정말 좋았습니다.",
-//       created_at: "2024-01-25T09:45:00Z",
-//       updated_at: "2024-01-25T09:45:00Z",
-//       boardgame: {
-//         id: "3",
-//         name: "할리갈리",
-//         image_url: null,
-//       },
-//       profile: {
-//         id: "3",
-//         nickname: "패밀리게이머",
-//       },
-//     },
-//   ];
-
 type SortOption = "none" | "rating-high" | "rating-low";
 
 function Reviews() {
