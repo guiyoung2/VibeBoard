@@ -10,6 +10,8 @@ import Cafes from "./pages/Cafes";
 import Search from "./pages/Search";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
+import NicknameSetup from "./pages/NicknameSetup";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
             <Route path="/search" element={<Search />} />
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/auth/setup-nickname" element={<NicknameSetup />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </div>
       </Layout>

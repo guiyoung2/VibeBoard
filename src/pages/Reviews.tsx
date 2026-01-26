@@ -1,68 +1,70 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 import type { Review } from "../types/review";
 
-// 예시 리뷰 데이터 (하드코딩)
-const exampleReviews: Review[] = [
-    {
-      id: "1",
-      boardgame_id: "1",
-      user_id: "1",
-      rating: 5,
-      content:
-        "정말 재미있는 보드게임이에요! 친구들과 함께 플레이했는데 모두가 즐거워했어요. 전략적 요소도 있고 운도 있어서 매번 다른 결과가 나와서 좋습니다. 특히 중반부부터 긴장감이 올라가는 게임플레이가 인상적이었어요.",
-      created_at: "2024-01-15T10:30:00Z",
-      updated_at: "2024-01-15T10:30:00Z",
-      boardgame: {
-        id: "1",
-        name: "카탄의 개척자들",
-        image_url: null,
-      },
-      profile: {
-        id: "1",
-        nickname: "보드게임러버",
-      },
-    },
-    {
-      id: "2",
-      boardgame_id: "2",
-      user_id: "2",
-      rating: 4,
-      content:
-        "처음 해보는 보드게임인데 생각보다 쉽게 배울 수 있어서 좋았어요. 규칙이 복잡해 보였지만 실제로는 직관적이고, 게임 시간도 적당해서 부담스럽지 않았습니다. 다만 승리 조건이 조금 애매한 부분이 있어서 4점 드립니다.",
-      created_at: "2024-01-20T14:15:00Z",
-      updated_at: "2024-01-20T14:15:00Z",
-      boardgame: {
-        id: "2",
-        name: "스플렌더",
-        image_url: null,
-      },
-      profile: {
-        id: "2",
-        nickname: "게임마스터",
-      },
-    },
-    {
-      id: "3",
-      boardgame_id: "3",
-      user_id: "3",
-      rating: 5,
-      content:
-        "가족과 함께 즐기기 완벽한 게임입니다! 아이들도 쉽게 이해할 수 있고, 어른들도 전략을 세우며 즐길 수 있어서 세대를 불문하고 모두가 즐거워했어요. 특히 게임 중간중간 웃음이 터져나와서 분위기가 정말 좋았습니다.",
-      created_at: "2024-01-25T09:45:00Z",
-      updated_at: "2024-01-25T09:45:00Z",
-      boardgame: {
-        id: "3",
-        name: "할리갈리",
-        image_url: null,
-      },
-      profile: {
-        id: "3",
-        nickname: "패밀리게이머",
-      },
-    },
-  ];
+// 예시 리뷰 데이터 (하드코딩) - 주석처리: Supabase 연동으로 대체
+// const exampleReviews: Review[] = [
+//     {
+//       id: "1",
+//       boardgame_id: "1",
+//       user_id: "1",
+//       rating: 5,
+//       content:
+//         "정말 재미있는 보드게임이에요! 친구들과 함께 플레이했는데 모두가 즐거워했어요. 전략적 요소도 있고 운도 있어서 매번 다른 결과가 나와서 좋습니다. 특히 중반부부터 긴장감이 올라가는 게임플레이가 인상적이었어요.",
+//       created_at: "2024-01-15T10:30:00Z",
+//       updated_at: "2024-01-15T10:30:00Z",
+//       boardgame: {
+//         id: "1",
+//         name: "카탄의 개척자들",
+//         image_url: null,
+//       },
+//       profile: {
+//         id: "1",
+//         nickname: "보드게임러버",
+//       },
+//     },
+//     {
+//       id: "2",
+//       boardgame_id: "2",
+//       user_id: "2",
+//       rating: 4,
+//       content:
+//         "처음 해보는 보드게임인데 생각보다 쉽게 배울 수 있어서 좋았어요. 규칙이 복잡해 보였지만 실제로는 직관적이고, 게임 시간도 적당해서 부담스럽지 않았습니다. 다만 승리 조건이 조금 애매한 부분이 있어서 4점 드립니다.",
+//       created_at: "2024-01-20T14:15:00Z",
+//       updated_at: "2024-01-20T14:15:00Z",
+//       boardgame: {
+//         id: "2",
+//         name: "스플렌더",
+//         image_url: null,
+//       },
+//       profile: {
+//         id: "2",
+//         nickname: "게임마스터",
+//       },
+//     },
+//     {
+//       id: "3",
+//       boardgame_id: "3",
+//       user_id: "3",
+//       rating: 5,
+//       content:
+//         "가족과 함께 즐기기 완벽한 게임입니다! 아이들도 쉽게 이해할 수 있고, 어른들도 전략을 세우며 즐길 수 있어서 세대를 불문하고 모두가 즐거워했어요. 특히 게임 중간중간 웃음이 터져나와서 분위기가 정말 좋았습니다.",
+//       created_at: "2024-01-25T09:45:00Z",
+//       updated_at: "2024-01-25T09:45:00Z",
+//       boardgame: {
+//         id: "3",
+//         name: "할리갈리",
+//         image_url: null,
+//       },
+//       profile: {
+//         id: "3",
+//         nickname: "패밀리게이머",
+//       },
+//     },
+//   ];
 
 type SortOption = "none" | "rating-high" | "rating-low";
 
@@ -71,6 +73,81 @@ function Reviews() {
   const [sortOption, setSortOption] = useState<SortOption>("none");
   const { user } = useAuthStore();
 
+  // Supabase에서 리뷰 목록 가져오기
+  const { data: reviews, isLoading, error } = useQuery({
+    queryKey: ["reviews"],
+    queryFn: async () => {
+      // 먼저 리뷰 목록 가져오기
+      const { data: reviewsData, error: reviewsError } = await supabase
+        .from("reviews")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (reviewsError) throw reviewsError;
+      if (!reviewsData || reviewsData.length === 0) return [];
+
+      // 각 리뷰의 boardgame_id와 user_id 수집 (null/undefined 제거)
+      const boardgameIds = [...new Set(reviewsData.map((r) => r.boardgame_id).filter((id): id is string => !!id))];
+      const userIds = [...new Set(reviewsData.map((r) => r.user_id).filter((id): id is string => !!id))];
+
+      // boardgames 정보 가져오기 (빈 배열이 아닐 때만)
+      let boardgamesData: { id: string; name: string; image_url: string | null }[] = [];
+      if (boardgameIds.length > 0) {
+        const { data, error: boardgamesError } = await supabase
+          .from("boardgames")
+          .select("id, name, image_url")
+          .in("id", boardgameIds);
+
+        if (boardgamesError) throw boardgamesError;
+        boardgamesData = (data as { id: string; name: string; image_url: string | null }[]) || [];
+      }
+
+      // profiles 정보 가져오기 (빈 배열이 아닐 때만)
+      let profilesData: { id: string; nickname: string | null }[] = [];
+      if (userIds.length > 0) {
+        const { data, error: profilesError } = await supabase
+          .from("profiles")
+          .select("id, nickname")
+          .in("id", userIds);
+
+        if (profilesError) throw profilesError;
+        profilesData = (data as { id: string; nickname: string | null }[]) || [];
+      }
+
+      // boardgames와 profiles를 Map으로 변환 (빠른 조회를 위해)
+      const boardgamesMap = new Map(
+        (boardgamesData || []).map((bg) => [bg.id, bg])
+      );
+      const profilesMap = new Map(
+        (profilesData || []).map((p) => [p.id, p])
+      );
+
+      // 리뷰 데이터와 조인된 데이터 결합
+      return reviewsData.map((review) => ({
+        id: review.id,
+        boardgame_id: review.boardgame_id,
+        user_id: review.user_id,
+        rating: review.rating,
+        content: review.content,
+        created_at: review.created_at,
+        updated_at: review.updated_at,
+        boardgame: boardgamesMap.get(review.boardgame_id)
+          ? {
+              id: boardgamesMap.get(review.boardgame_id)!.id,
+              name: boardgamesMap.get(review.boardgame_id)!.name,
+              image_url: boardgamesMap.get(review.boardgame_id)!.image_url,
+            }
+          : undefined,
+        profile: profilesMap.get(review.user_id)
+          ? {
+              id: profilesMap.get(review.user_id)!.id,
+              nickname: profilesMap.get(review.user_id)!.nickname,
+            }
+          : undefined,
+      })) as Review[];
+    },
+  });
+
   // 평점을 별표로 표시하는 함수 (채워진 별만)
   const renderStars = (rating: number) => {
     return "⭐".repeat(rating);
@@ -78,7 +155,8 @@ function Reviews() {
 
   // 검색어로 필터링 및 정렬된 리뷰 목록
   const filteredReviews = useMemo(() => {
-    let filtered = exampleReviews;
+    if (!reviews) return [];
+    let filtered = reviews;
 
     // 검색 필터링
     if (searchQuery.trim()) {
@@ -97,7 +175,7 @@ function Reviews() {
     }
 
     return filtered;
-  }, [searchQuery, sortOption]);
+  }, [reviews, searchQuery, sortOption]);
 
   return (
     <div className="min-h-screen bg-bg">
@@ -140,7 +218,15 @@ function Reviews() {
         </div>
 
         <div className="space-y-6">
-          {filteredReviews.length > 0 ? (
+          {isLoading ? (
+            <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border text-center">
+              <p className="text-text-sub">로딩 중...</p>
+            </div>
+          ) : error ? (
+            <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border text-center">
+              <p className="text-red-600">리뷰를 불러오는 중 오류가 발생했습니다.</p>
+            </div>
+          ) : filteredReviews.length > 0 ? (
             filteredReviews.map((review) => (
             <Link
               key={review.id}

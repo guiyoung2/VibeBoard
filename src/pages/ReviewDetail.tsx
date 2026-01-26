@@ -1,137 +1,209 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "../lib/supabase";
+import { useAuthStore } from "../stores/authStore";
 import type { Review, Comment } from "../types/review";
 
 function ReviewDetail() {
   const { id } = useParams<{ id: string }>();
-
-  // 예시 리뷰 데이터 (하드코딩) - 실제로는 id로 찾아야 함
-  const exampleReviews: Review[] = [
-    {
-      id: "1",
-      boardgame_id: "1",
-      user_id: "1",
-      rating: 5,
-      content:
-        "정말 재미있는 보드게임이에요! 친구들과 함께 플레이했는데 모두가 즐거워했어요. 전략적 요소도 있고 운도 있어서 매번 다른 결과가 나와서 좋습니다. 특히 중반부부터 긴장감이 올라가는 게임플레이가 인상적이었어요.\n\n추가로 말씀드리면, 게임 시간도 적당하고 규칙도 복잡하지 않아서 초보자도 쉽게 즐길 수 있을 것 같아요. 다만 승리 조건을 잘 이해해야 전략을 세울 수 있으니 처음 플레이하는 분들은 설명을 잘 듣는 게 중요할 것 같습니다.",
-      created_at: "2024-01-15T10:30:00Z",
-      updated_at: "2024-01-15T10:30:00Z",
-      boardgame: {
-        id: "1",
-        name: "카탄의 개척자들",
-        image_url: null,
-      },
-      profile: {
-        id: "1",
-        nickname: "보드게임러버",
-      },
-    },
-    {
-      id: "2",
-      boardgame_id: "2",
-      user_id: "2",
-      rating: 4,
-      content:
-        "처음 해보는 보드게임인데 생각보다 쉽게 배울 수 있어서 좋았어요. 규칙이 복잡해 보였지만 실제로는 직관적이고, 게임 시간도 적당해서 부담스럽지 않았습니다. 다만 승리 조건이 조금 애매한 부분이 있어서 4점 드립니다.\n\n게임 구성품의 퀄리티도 좋고, 설명서도 잘 되어 있어서 혼자서도 충분히 이해할 수 있었어요. 친구들과 함께 하면 더 재미있을 것 같습니다.",
-      created_at: "2024-01-20T14:15:00Z",
-      updated_at: "2024-01-20T14:15:00Z",
-      boardgame: {
-        id: "2",
-        name: "스플렌더",
-        image_url: null,
-      },
-      profile: {
-        id: "2",
-        nickname: "게임마스터",
-      },
-    },
-    {
-      id: "3",
-      boardgame_id: "3",
-      user_id: "3",
-      rating: 5,
-      content:
-        "가족과 함께 즐기기 완벽한 게임입니다! 아이들도 쉽게 이해할 수 있고, 어른들도 전략을 세우며 즐길 수 있어서 세대를 불문하고 모두가 즐거워했어요. 특히 게임 중간중간 웃음이 터져나와서 분위기가 정말 좋았습니다.\n\n게임 시간도 30분 정도로 적당해서 아이들의 집중력도 유지할 수 있었고, 반복해서 플레이해도 지루하지 않았어요. 가족 모임이나 친구들과 함께 할 때 강력 추천합니다!",
-      created_at: "2024-01-25T09:45:00Z",
-      updated_at: "2024-01-25T09:45:00Z",
-      boardgame: {
-        id: "3",
-        name: "할리갈리",
-        image_url: null,
-      },
-      profile: {
-        id: "3",
-        nickname: "패밀리게이머",
-      },
-    },
-  ];
-
-  // 댓글 작성 상태
+  const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   const [commentContent, setCommentContent] = useState("");
 
-  // 예시 댓글 데이터 (하드코딩) - 실제로는 review_id로 찾아야 함
-  const exampleComments: Comment[] = [
-    {
-      id: "1",
-      review_id: "1",
-      user_id: "2",
-      content: "저도 이 게임 정말 좋아해요! 특히 중반부 전략이 중요하다는 점에 동감합니다.",
-      created_at: "2024-01-16T09:20:00Z",
-      updated_at: "2024-01-16T09:20:00Z",
-      profile: {
-        id: "2",
-        nickname: "게임마스터",
-      },
+  // 예시 리뷰 데이터 (하드코딩) - 주석처리: Supabase 연동으로 대체
+  // const exampleReviews: Review[] = [
+  //   ...
+  // ];
+
+  // 예시 댓글 데이터 (하드코딩) - 주석처리: Supabase 연동으로 대체
+  // const exampleComments: Comment[] = [
+  //   ...
+  // ];
+
+  // Supabase에서 특정 리뷰 가져오기
+  const { data: review, isLoading: isLoadingReview, error: reviewError } = useQuery({
+    queryKey: ["review", id],
+    queryFn: async () => {
+      if (!id) throw new Error("리뷰 ID가 없습니다.");
+
+      // 리뷰 정보 가져오기
+      const { data: reviewData, error: reviewError } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (reviewError) throw reviewError;
+      if (!reviewData) throw new Error("리뷰를 찾을 수 없습니다.");
+
+      // boardgame 정보 가져오기
+      const { data: boardgameData, error: boardgameError } = await supabase
+        .from("boardgames")
+        .select("id, name, image_url")
+        .eq("id", reviewData.boardgame_id)
+        .single();
+
+      if (boardgameError && boardgameError.code !== "PGRST116") {
+        // PGRST116은 "결과가 없음" 에러이므로 무시
+        console.error("보드게임 정보 가져오기 오류:", boardgameError);
+      }
+
+      // profile 정보 가져오기
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, nickname")
+        .eq("id", reviewData.user_id)
+        .single();
+
+      if (profileError && profileError.code !== "PGRST116") {
+        // PGRST116은 "결과가 없음" 에러이므로 무시
+        console.error("프로필 정보 가져오기 오류:", profileError);
+      }
+
+      // Review 타입에 맞게 변환
+      return {
+        id: reviewData.id,
+        boardgame_id: reviewData.boardgame_id,
+        user_id: reviewData.user_id,
+        rating: reviewData.rating,
+        content: reviewData.content,
+        created_at: reviewData.created_at,
+        updated_at: reviewData.updated_at,
+        boardgame: boardgameData
+          ? {
+              id: boardgameData.id,
+              name: boardgameData.name,
+              image_url: boardgameData.image_url,
+            }
+          : undefined,
+        profile: profileData
+          ? {
+              id: profileData.id,
+              nickname: profileData.nickname,
+            }
+          : undefined,
+      } as Review;
     },
-    {
-      id: "2",
-      review_id: "1",
-      user_id: "3",
-      content: "처음 플레이하는 분들에게도 추천할 만한 게임이네요. 다음에 한번 해봐야겠어요!",
-      created_at: "2024-01-17T14:30:00Z",
-      updated_at: "2024-01-17T14:30:00Z",
-      profile: {
-        id: "3",
-        nickname: "패밀리게이머",
-      },
+    enabled: !!id,
+  });
+
+  // Supabase에서 댓글 목록 가져오기
+  const { data: comments = [], isLoading: isLoadingComments } = useQuery({
+    queryKey: ["comments", id],
+    queryFn: async () => {
+      if (!id) return [];
+
+      // 댓글 목록 가져오기
+      const { data: commentsData, error: commentsError } = await supabase
+        .from("comments")
+        .select("*")
+        .eq("review_id", id)
+        .order("created_at", { ascending: true });
+
+      // 에러 처리: 404 또는 테이블이 없을 때 빈 배열 반환
+      if (commentsError) {
+        // PGRST116: 결과가 없음
+        // 404: 테이블이 없거나 접근 권한 없음
+        // 에러 메시지에 404가 포함되어 있으면 빈 배열 반환
+        if (
+          commentsError.code === "PGRST116" ||
+          commentsError.message?.includes("404") ||
+          commentsError.message?.includes("relation") ||
+          commentsError.message?.includes("does not exist")
+        ) {
+          console.warn("댓글 테이블을 찾을 수 없거나 접근할 수 없습니다:", commentsError.message);
+          return [];
+        }
+        throw commentsError;
+      }
+      if (!commentsData || commentsData.length === 0) return [];
+
+      // 각 댓글의 user_id 수집
+      const userIds = [...new Set(commentsData.map((c) => c.user_id))];
+
+      // profiles 정보 가져오기
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, nickname")
+        .in("id", userIds);
+
+      if (profilesError) throw profilesError;
+
+      // profiles를 Map으로 변환 (빠른 조회를 위해)
+      const profilesMap = new Map(
+        (profilesData || []).map((p) => [p.id, p])
+      );
+
+      // 댓글 데이터와 조인된 데이터 결합
+      return commentsData.map((comment) => ({
+        id: comment.id,
+        review_id: comment.review_id,
+        user_id: comment.user_id,
+        content: comment.content,
+        created_at: comment.created_at,
+        updated_at: comment.updated_at,
+        profile: profilesMap.get(comment.user_id)
+          ? {
+              id: profilesMap.get(comment.user_id)!.id,
+              nickname: profilesMap.get(comment.user_id)!.nickname,
+            }
+          : undefined,
+      })) as Comment[];
     },
-    {
-      id: "3",
-      review_id: "2",
-      user_id: "1",
-      content: "규칙이 직관적이라는 점 정말 공감해요. 설명서만 봐도 바로 이해할 수 있었어요.",
-      created_at: "2024-01-21T11:15:00Z",
-      updated_at: "2024-01-21T11:15:00Z",
-      profile: {
-        id: "1",
-        nickname: "보드게임러버",
-      },
+    enabled: !!id,
+  });
+
+  // 댓글 작성 mutation
+  const createCommentMutation = useMutation({
+    mutationFn: async (content: string) => {
+      if (!user) throw new Error("로그인이 필요합니다.");
+      if (!id) throw new Error("리뷰 ID가 없습니다.");
+
+      const { data: comment, error } = await supabase
+        .from("comments")
+        .insert({
+          review_id: id,
+          user_id: user.id,
+          content: content.trim(),
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return comment;
     },
-  ];
+    onSuccess: () => {
+      // 댓글 목록 캐시 무효화 (새 댓글이 목록에 반영되도록)
+      queryClient.invalidateQueries({ queryKey: ["comments", id] });
+      setCommentContent("");
+    },
+  });
 
   // 평점을 별표로 표시하는 함수 (채워진 별만)
   const renderStars = (rating: number) => {
     return "⭐".repeat(rating);
   };
 
-  // id로 리뷰 찾기
-  const review = exampleReviews.find((r) => r.id === id);
-
-  // 해당 리뷰의 댓글 목록
-  const comments = exampleComments.filter((c) => c.review_id === id);
-
-  // 댓글 작성 핸들러 (하드코딩이므로 state만 업데이트)
+  // 댓글 작성 핸들러
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentContent.trim()) return;
-
-    // 하드코딩이므로 실제로는 Supabase에 저장해야 함
-    // 지금은 alert로 확인만
-    alert("댓글이 작성되었습니다. (하드코딩 모드에서는 실제 저장되지 않습니다.)");
-    setCommentContent("");
+    createCommentMutation.mutate(commentContent);
   };
 
-  if (!review) {
+  if (isLoadingReview) {
+    return (
+      <div className="min-h-screen bg-bg flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-text-main">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (reviewError || !review) {
     return (
       <div className="min-h-screen bg-bg">
         <div className="max-w-4xl mx-auto px-4 py-12">
@@ -228,26 +300,51 @@ function ReviewDetail() {
           </h2>
 
           {/* 댓글 작성 폼 */}
-          <form onSubmit={handleCommentSubmit} className="mb-8">
-            <textarea
-              value={commentContent}
-              onChange={(e) => setCommentContent(e.target.value)}
-              placeholder="댓글을 작성해주세요..."
-              rows={4}
-              className="w-full px-4 py-3 border border-border rounded-lg bg-bg text-text-main placeholder:text-text-sub focus:outline-none focus:ring-2 focus:ring-primary resize-none mb-3"
-            />
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors"
+          {user ? (
+            <form onSubmit={handleCommentSubmit} className="mb-8">
+              <textarea
+                value={commentContent}
+                onChange={(e) => setCommentContent(e.target.value)}
+                placeholder="댓글을 작성해주세요..."
+                rows={4}
+                className="w-full px-4 py-3 border border-border rounded-lg bg-bg text-text-main placeholder:text-text-sub focus:outline-none focus:ring-2 focus:ring-primary resize-none mb-3"
+                disabled={createCommentMutation.isPending}
+              />
+              {createCommentMutation.error && (
+                <p className="mb-3 text-sm text-red-600">
+                  {createCommentMutation.error instanceof Error
+                    ? createCommentMutation.error.message
+                    : "댓글 작성 중 오류가 발생했습니다."}
+                </p>
+              )}
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={createCommentMutation.isPending || !commentContent.trim()}
+                  className="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {createCommentMutation.isPending ? "작성 중..." : "댓글 작성"}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="mb-8 p-4 bg-bg-muted rounded-lg text-center">
+              <p className="text-text-sub mb-2">댓글을 작성하려면 로그인이 필요합니다.</p>
+              <Link
+                to="/auth/login"
+                className="text-accent hover:text-accent-hover underline"
               >
-                댓글 작성
-              </button>
+                로그인하기
+              </Link>
             </div>
-          </form>
+          )}
 
           {/* 댓글 목록 */}
-          {comments.length > 0 ? (
+          {isLoadingComments ? (
+            <div className="text-center py-8 text-text-sub">
+              <p>댓글을 불러오는 중...</p>
+            </div>
+          ) : comments.length > 0 ? (
             <div className="space-y-6">
               {comments.map((comment) => (
                 <div

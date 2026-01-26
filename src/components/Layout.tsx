@@ -71,9 +71,12 @@ function Layout({ children }: LayoutProps) {
             <div className="flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-3">
-                  <span className="text-sm text-text-sub">
+                  <Link
+                    to="/profile"
+                    className="text-sm text-text-sub hover:text-text-main transition-colors"
+                  >
                     {nickname || user.email?.split("@")[0]}님
-                  </span>
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     className="px-4 py-2 text-sm font-medium text-text-sub hover:text-text-main transition-colors"
