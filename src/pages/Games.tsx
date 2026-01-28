@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
+import { useThemeStore } from "../stores/themeStore";
 import type { BoardGame } from "../types/boardgame";
 import GameCard from "../components/GameCard";
 
@@ -21,6 +22,8 @@ function Games() {
   const [prevDisplayCount, setPrevDisplayCount] = useState(0); // 이전 표시 개수 (애니메이션용)
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const ITEMS_PER_PAGE = 3; // 한 번에 추가로 로드할 개수
+  const { theme } = useThemeStore();
+  const isDark = theme === "dark";
 
   // Supabase에서 보드게임 데이터 가져오기
   const {
@@ -139,7 +142,7 @@ function Games() {
         threshold: 0.1,
         rootMargin: "100px", // 뷰포트(화면) 하단에서 100px 전에 미리 로드
         // 브라우저 화면(viewport) 기준
-      }
+      },
     );
 
     observer.observe(loadMoreElement);
@@ -151,7 +154,7 @@ function Games() {
 
   const handleFilterChange = (
     type: keyof FilterState,
-    value: number | string | null
+    value: number | string | null,
   ) => {
     setFilters((prev) => {
       const newFilters = {
@@ -166,12 +169,14 @@ function Games() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-bg">
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">게임 추천</h1>
+        <h1 className="text-4xl font-bold text-primary dark:text-text-main mb-8">
+          게임 추천
+        </h1>
 
         {/* 검색창 */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+        <div className="bg-bg-card p-6 rounded-lg shadow-card border border-border mb-8">
           <form onSubmit={handleSearch} className="flex gap-4">
             <input
               type="text"
@@ -183,11 +188,11 @@ function Games() {
                 setDisplayCount(ITEMS_PER_PAGE);
               }}
               placeholder="보드게임 이름으로 검색..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-4 py-2 border border-border rounded-lg bg-bg-card text-text-main placeholder:text-text-sub focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <button
               type="submit"
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className={`px-6 py-2 ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white rounded-lg transition-colors`}
             >
               검색
             </button>
@@ -195,11 +200,11 @@ function Games() {
         </div>
 
         {/* 필터 섹션 */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+        <div className="bg-bg-card p-6 rounded-lg shadow-card border border-border mb-8">
           <div className="space-y-6">
             {/* 인원수 필터 */}
             <div>
-              <label className="block text-base font-bold text-gray-900 mb-3">
+              <label className="block text-base font-bold text-text-main mb-3">
                 인원수
               </label>
               <div className="flex flex-wrap gap-2">
@@ -210,7 +215,7 @@ function Games() {
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       filters.players === num
                         ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        : "bg-bg-muted text-text-main hover:bg-bg hover:text-text-main"
                     }`}
                   >
                     {num === 7 ? "7인 이상" : `${num}인`}
@@ -221,7 +226,7 @@ function Games() {
 
             {/* 난이도 필터 */}
             <div>
-              <label className="block text-base font-bold text-gray-900 mb-3">
+              <label className="block text-base font-bold text-text-main mb-3">
                 난이도
               </label>
               <div className="flex flex-wrap gap-2">
@@ -238,7 +243,7 @@ function Games() {
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       filters.difficulty === item.value
                         ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        : "bg-bg-muted text-text-main hover:bg-bg hover:text-text-main"
                     }`}
                   >
                     {item.label}
@@ -249,7 +254,7 @@ function Games() {
 
             {/* 게임 시간 필터 */}
             <div>
-              <label className="block text-base font-bold text-gray-900 mb-3">
+              <label className="block text-base font-bold text-text-main mb-3">
                 게임 시간
               </label>
               <div className="flex flex-wrap gap-2">
@@ -265,7 +270,7 @@ function Games() {
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       filters.playTime === item.value
                         ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        : "bg-bg-muted text-text-main hover:bg-bg hover:text-text-main"
                     }`}
                   >
                     {item.label}
@@ -299,7 +304,7 @@ function Games() {
         {/* 로딩 상태 */}
         {isLoading && (
           <div className="text-center py-12">
-            <p className="text-gray-600">로딩 중...</p>
+            <p className="text-text-sub">로딩 중...</p>
           </div>
         )}
 
@@ -315,7 +320,7 @@ function Games() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGames.length === 0 ? (
               <div className="col-span-full text-center py-12">
-                <p className="text-gray-600">
+                <p className="text-text-sub">
                   {searchQuery ||
                   filters.players !== null ||
                   filters.difficulty !== null ||
@@ -343,7 +348,7 @@ function Games() {
                     ref={loadMoreRef}
                     className="col-span-full flex justify-center items-center py-8"
                   >
-                    <div className="text-gray-400 text-sm">로딩 중...</div>
+                    <div className="text-text-muted text-sm">로딩 중...</div>
                   </div>
                 )}
               </>

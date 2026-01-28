@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
+import { useThemeStore } from "../stores/themeStore";
 
 function Profile() {
   const navigate = useNavigate();
@@ -11,6 +12,8 @@ function Profile() {
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const { theme } = useThemeStore();
+  const isDark = theme === "dark";
 
   // 현재 닉네임을 초기값으로 설정
   useEffect(() => {
@@ -64,10 +67,13 @@ function Profile() {
 
     try {
       // 닉네임 저장
-      const { error: updateError } = await supabase.rpc("update_user_nickname", {
-        user_id: user.id,
-        new_nickname: nicknameInput.trim(),
-      });
+      const { error: updateError } = await supabase.rpc(
+        "update_user_nickname",
+        {
+          user_id: user.id,
+          new_nickname: nicknameInput.trim(),
+        },
+      );
 
       if (updateError) {
         throw updateError;
@@ -85,7 +91,9 @@ function Profile() {
       }, 2000);
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "닉네임 수정 중 오류가 발생했습니다.";
+        err instanceof Error
+          ? err.message
+          : "닉네임 수정 중 오류가 발생했습니다.";
       setError(errorMessage);
       setLoading(false);
     }
@@ -100,7 +108,7 @@ function Profile() {
             <p className="text-text-main mb-4">로그인이 필요합니다.</p>
             <button
               onClick={() => navigate("/auth/login")}
-              className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-soft transition-colors"
+              className={`${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white px-6 py-2 rounded-lg transition-colors`}
             >
               로그인하기
             </button>
@@ -113,10 +121,14 @@ function Profile() {
   return (
     <div className="min-h-screen bg-bg">
       <div className="max-w-2xl mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold text-primary mb-8">프로필 설정</h1>
+        <h1 className="text-4xl font-bold text-primary dark:text-text-main mb-8">
+          프로필 설정
+        </h1>
 
         <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border">
-          <h2 className="text-2xl font-bold text-text-main mb-6">닉네임 수정</h2>
+          <h2 className="text-2xl font-bold text-text-main mb-6">
+            닉네임 수정
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -141,7 +153,9 @@ function Profile() {
                 disabled={loading}
               />
               {fieldError && (
-                <p className="mt-1 text-sm text-red-600">{fieldError}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  {fieldError}
+                </p>
               )}
               <p className="mt-1 text-xs text-text-sub">
                 {nicknameInput.length}/6 글자
@@ -149,21 +163,25 @@ function Profile() {
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg">
                 <p className="text-sm">{error}</p>
               </div>
             )}
 
             {success && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-lg">
                 <p className="text-sm">닉네임이 성공적으로 변경되었습니다.</p>
               </div>
             )}
 
             <button
               type="submit"
-              disabled={loading || !nicknameInput.trim() || nicknameInput.trim() === nickname}
-              className="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={
+                loading ||
+                !nicknameInput.trim() ||
+                nicknameInput.trim() === nickname
+              }
+              className={`w-full ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {loading ? "수정 중..." : "닉네임 수정하기"}
             </button>
@@ -171,17 +189,25 @@ function Profile() {
 
           {/* 사용자 정보 */}
           <div className="mt-8 pt-8 border-t border-border">
-            <h3 className="text-lg font-semibold text-text-main mb-4">계정 정보</h3>
+            <h3 className="text-lg font-semibold text-text-main mb-4">
+              계정 정보
+            </h3>
             <div className="space-y-2 text-text-sub">
               <p>
-                <span className="font-medium text-text-main">이메일:</span> {user.email}
+                <span className="font-medium text-text-main">이메일:</span>{" "}
+                {user.email}
               </p>
               <p>
                 <span className="font-medium text-text-main">로그인 방식:</span>{" "}
-                {user.app_metadata?.provider === "email" ? "이메일" : 
-                 user.app_metadata?.provider === "google" ? "Google" :
-                 user.app_metadata?.provider === "github" ? "GitHub" :
-                 user.app_metadata?.provider === "kakao" ? "Kakao" : "소셜 로그인"}
+                {user.app_metadata?.provider === "email"
+                  ? "이메일"
+                  : user.app_metadata?.provider === "google"
+                    ? "Google"
+                    : user.app_metadata?.provider === "github"
+                      ? "GitHub"
+                      : user.app_metadata?.provider === "kakao"
+                        ? "Kakao"
+                        : "소셜 로그인"}
               </p>
             </div>
           </div>

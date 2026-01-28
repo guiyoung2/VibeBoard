@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
+import { useThemeStore } from "../stores/themeStore";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,6 +10,8 @@ function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, nickname, signOut } = useAuthStore();
+  const { theme, toggleTheme } = useThemeStore();
+  const isDark = theme === "dark";
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -39,7 +42,7 @@ function Layout({ children }: LayoutProps) {
                 to="/games"
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   isActive("/games")
-                    ? "bg-primary text-white shadow-card"
+                    ? `${isDark ? "bg-accent" : "bg-primary"} text-white shadow-card`
                     : "text-text-sub hover:bg-bg-muted hover:text-text-main"
                 }`}
               >
@@ -49,7 +52,7 @@ function Layout({ children }: LayoutProps) {
                 to="/reviews"
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   isActive("/reviews")
-                    ? "bg-primary text-white shadow-card"
+                    ? `${isDark ? "bg-accent" : "bg-primary"} text-white shadow-card`
                     : "text-text-sub hover:bg-bg-muted hover:text-text-main"
                 }`}
               >
@@ -59,7 +62,7 @@ function Layout({ children }: LayoutProps) {
                 to="/cafes"
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   isActive("/cafes")
-                    ? "bg-primary text-white shadow-card"
+                    ? `${isDark ? "bg-accent" : "bg-primary"} text-white shadow-card`
                     : "text-text-sub hover:bg-bg-muted hover:text-text-main"
                 }`}
               >
@@ -69,6 +72,44 @@ function Layout({ children }: LayoutProps) {
 
             {/* User Menu */}
             <div className="flex items-center space-x-4">
+              {/* 다크 모드 토글 버튼 */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg text-text-sub hover:text-text-main hover:bg-bg-muted transition-colors"
+                aria-label="다크 모드 토글"
+                title={theme === "light" ? "다크 모드" : "라이트 모드"}
+              >
+                {theme === "dark" ? (
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                    />
+                  </svg>
+                )}
+              </button>
+
               {user ? (
                 <div className="flex items-center space-x-3">
                   <Link
@@ -101,9 +142,11 @@ function Layout({ children }: LayoutProps) {
       <main>{children}</main>
 
       {/* Footer */}
-      <footer className="bg-primary text-white mt-12">
+      <footer className={`${isDark ? "bg-primary-soft" : "bg-primary"} mt-12`}>
         <div className="max-w-7xl mx-auto px-4 py-8">
-          <p className="text-center text-text-muted">
+          <p
+            className={`text-center ${isDark ? "text-text-sub" : "text-white"}`}
+          >
             © 2025 VibeBoard. All rights reserved.
           </p>
         </div>

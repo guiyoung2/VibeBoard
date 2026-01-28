@@ -10,7 +10,7 @@ function GameCard({ game, index }: GameCardProps) {
   return (
     <Link
       to={`/games/${game.id}`}
-      className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer block ${
+      className={`bg-bg-card p-6 rounded-lg shadow-card border border-border hover:shadow-hover transition-all cursor-pointer block ${
         index !== undefined ? "animate-fade-in" : ""
       }`}
       style={
@@ -22,7 +22,7 @@ function GameCard({ game, index }: GameCardProps) {
           : {}
       }
     >
-      <div className="w-full aspect-square bg-gray-200 rounded mb-4 overflow-hidden">
+      <div className="w-full aspect-square bg-bg-muted rounded mb-4 overflow-hidden">
         {game.image_url ? (
           <img
             src={game.image_url}
@@ -30,11 +30,11 @@ function GameCard({ game, index }: GameCardProps) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gray-200"></div>
+          <div className="w-full h-full bg-bg-muted"></div>
         )}
       </div>
-      <h3 className="text-xl font-semibold mb-2">{game.name}</h3>
-      <p className="text-gray-600 mb-3 line-clamp-3">
+      <h3 className="text-xl font-semibold mb-2 text-text-main">{game.name}</h3>
+      <p className="text-text-sub mb-3 line-clamp-3">
         {game.description || "설명이 없습니다."}
       </p>
 
@@ -48,7 +48,7 @@ function GameCard({ game, index }: GameCardProps) {
             .map((cat, index) => (
               <span
                 key={index}
-                className="bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-xs font-medium border border-blue-200"
+                className="bg-primary/10 dark:bg-primary/20 text-primary dark:text-text-main px-3 py-1 rounded-md text-xs font-medium border border-primary/20 dark:border-primary/30"
               >
                 {cat}
               </span>
@@ -57,7 +57,7 @@ function GameCard({ game, index }: GameCardProps) {
       )}
 
       {/* 게임 정보 */}
-      <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+      <div className="flex flex-wrap gap-3 text-sm text-text-sub">
         {game.min_players && game.max_players && (
           <span className="flex items-center gap-1 whitespace-nowrap">
             <svg

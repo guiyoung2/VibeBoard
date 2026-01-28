@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
+import { useThemeStore } from "../stores/themeStore";
 import type { BoardGame } from "../types/boardgame";
 import type { ReviewFormData } from "../types/review";
 
@@ -10,6 +11,8 @@ function ReviewCreate() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
+  const { theme } = useThemeStore();
+  const isDark = theme === "dark";
 
   const [formData, setFormData] = useState<ReviewFormData>({
     boardgame_id: "",
@@ -99,10 +102,12 @@ function ReviewCreate() {
       <div className="min-h-screen bg-bg">
         <div className="max-w-4xl mx-auto px-4 py-12">
           <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border text-center">
-            <p className="text-text-main mb-4">리뷰를 작성하려면 로그인이 필요합니다.</p>
+            <p className="text-text-main mb-4">
+              리뷰를 작성하려면 로그인이 필요합니다.
+            </p>
             <button
               onClick={() => navigate("/auth/login")}
-              className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-soft transition-colors"
+              className={`${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white px-6 py-2 rounded-lg transition-colors`}
             >
               로그인하기
             </button>
@@ -122,10 +127,15 @@ function ReviewCreate() {
           >
             ← 목록으로
           </Link>
-          <h1 className="text-4xl font-bold text-primary">리뷰 작성</h1>
+          <h1 className="text-4xl font-bold text-primary dark:text-text-main">
+            리뷰 작성
+          </h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-bg-card p-8 rounded-xl shadow-card border border-border">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-bg-card p-8 rounded-xl shadow-card border border-border"
+        >
           {/* 보드게임 선택 */}
           <div className="mb-6">
             <label className="block text-sm font-bold text-text-main mb-2">
@@ -137,7 +147,10 @@ function ReviewCreate() {
               <select
                 value={formData.boardgame_id}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, boardgame_id: e.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    boardgame_id: e.target.value,
+                  }))
                 }
                 className="w-full px-4 py-2 border border-border rounded-lg bg-bg-card text-text-main focus:outline-none focus:ring-2 focus:ring-primary"
               >
@@ -164,9 +177,7 @@ function ReviewCreate() {
                 <button
                   key={rating}
                   type="button"
-                  onClick={() =>
-                    setFormData((prev) => ({ ...prev, rating }))
-                  }
+                  onClick={() => setFormData((prev) => ({ ...prev, rating }))}
                   className="w-12 h-12 flex items-center justify-center text-4xl transition-all hover:scale-110 cursor-pointer"
                   title={`${rating}점`}
                 >
@@ -231,7 +242,7 @@ function ReviewCreate() {
             <button
               type="submit"
               disabled={createReviewMutation.isPending}
-              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`px-6 py-2 ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {createReviewMutation.isPending ? "작성 중..." : "리뷰 작성"}
             </button>

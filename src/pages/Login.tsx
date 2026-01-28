@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
+import { useThemeStore } from "../stores/themeStore";
 
 function Login() {
   const [isLogin, setIsLogin] = useState(true); // true: 로그인, false: 회원가입
@@ -19,6 +20,8 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { setUser, setSession, setNickname, fetchNickname } = useAuthStore();
+  const { theme } = useThemeStore();
+  const isDark = theme === "dark";
 
   // 이메일 형식 검증 (아이디@주소.com)
   const validateEmail = (email: string): boolean => {
@@ -48,7 +51,7 @@ function Login() {
   };
 
   const handleConfirmPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setConfirmPassword(e.target.value);
   };
@@ -65,7 +68,7 @@ function Login() {
     try {
       // 각 제공자별로 계정 선택 화면을 강제로 표시하는 옵션 설정
       const queryParams: Record<string, string> = {};
-      
+
       if (provider === "google") {
         // Google: 계정 선택 화면 강제 표시
         queryParams.prompt = "select_account";
@@ -92,7 +95,9 @@ function Login() {
       // 리다이렉트되므로 loading 상태는 유지 (페이지가 이동하므로)
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "소셜 로그인 중 오류가 발생했습니다.";
+        err instanceof Error
+          ? err.message
+          : "소셜 로그인 중 오류가 발생했습니다.";
       setError(errorMessage);
       setLoading(false);
     }
@@ -189,9 +194,13 @@ function Login() {
             error.message === "Invalid login credentials" ||
             error.message.includes("Invalid login credentials")
           ) {
-            setError("등록된 회원정보가 없습니다. 이메일과 비밀번호를 확인해주세요.");
+            setError(
+              "등록된 회원정보가 없습니다. 이메일과 비밀번호를 확인해주세요.",
+            );
           } else if (error.message.includes("Email not confirmed")) {
-            setError("이메일 인증이 완료되지 않았습니다. 이메일을 확인해주세요.");
+            setError(
+              "이메일 인증이 완료되지 않았습니다. 이메일을 확인해주세요.",
+            );
           } else {
             setError(error.message || "로그인 중 오류가 발생했습니다.");
           }
@@ -218,10 +227,13 @@ function Login() {
         // 이메일 확인 여부와 관계없이 닉네임은 저장해야 함
         if (data.user) {
           // SECURITY DEFINER 함수를 사용하여 RLS 우회
-          const { error: profileError } = await supabase.rpc("update_user_nickname", {
-            user_id: data.user.id,
-            new_nickname: nickname,
-          });
+          const { error: profileError } = await supabase.rpc(
+            "update_user_nickname",
+            {
+              user_id: data.user.id,
+              new_nickname: nickname,
+            },
+          );
 
           if (profileError) {
             // 프로필 저장 실패해도 계속 진행
@@ -265,7 +277,7 @@ function Login() {
             }}
             className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
               isLogin
-                ? "bg-primary text-white shadow-card"
+                ? `${isDark ? "bg-accent" : "bg-primary"} text-white shadow-card`
                 : "text-text-sub hover:text-text-main"
             }`}
           >
@@ -280,7 +292,7 @@ function Login() {
             }}
             className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
               !isLogin
-                ? "bg-primary text-white shadow-card"
+                ? `${isDark ? "bg-accent" : "bg-primary"} text-white shadow-card`
                 : "text-text-sub hover:text-text-main"
             }`}
           >
@@ -293,7 +305,7 @@ function Login() {
         </h1>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
             {error}
           </div>
         )}
@@ -313,7 +325,7 @@ function Login() {
                 placeholder="닉네임을 입력하세요 (최대 6글자)"
               />
               {fieldErrors.nickname && (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                   {fieldErrors.nickname}
                 </p>
               )}
@@ -332,7 +344,9 @@ function Login() {
               placeholder="이메일을 입력하세요"
             />
             {fieldErrors.email && (
-              <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                {fieldErrors.email}
+              </p>
             )}
           </div>
 
@@ -348,7 +362,7 @@ function Login() {
               placeholder="비밀번호를 입력하세요"
             />
             {fieldErrors.password && (
-              <p className="mt-1 text-sm text-red-600">
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                 {fieldErrors.password}
               </p>
             )}
@@ -367,7 +381,7 @@ function Login() {
                 placeholder="비밀번호를 다시 입력하세요"
               />
               {fieldErrors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                   {fieldErrors.confirmPassword}
                 </p>
               )}
@@ -377,22 +391,18 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary text-white py-3 px-4 rounded-xl hover:bg-primary-soft transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`w-full ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white py-3 px-4 rounded-xl transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed`}
           >
-            {loading
-              ? "처리 중..."
-              : isLogin
-              ? "로그인"
-              : "회원가입"}
+            {loading ? "처리 중..." : isLogin ? "로그인" : "회원가입"}
           </button>
 
           {/* 전체 오류 메시지 (버튼 아래) */}
           {Object.keys(fieldErrors).length > 0 && (
-            <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm font-medium text-red-600 mb-1">
+            <div className="mt-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-1">
                 다음 항목을 확인해주세요:
               </p>
-              <ul className="text-sm text-red-600 list-disc list-inside space-y-1">
+              <ul className="text-sm text-red-600 dark:text-red-400 list-disc list-inside space-y-1">
                 {fieldErrors.email && <li>{fieldErrors.email}</li>}
                 {fieldErrors.password && <li>{fieldErrors.password}</li>}
                 {fieldErrors.confirmPassword && (
@@ -420,7 +430,7 @@ function Login() {
             type="button"
             onClick={() => handleSocialLogin("google")}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 bg-white border-2 border-border text-text-main py-3 px-4 rounded-xl hover:bg-bg-muted transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="w-full flex items-center justify-center gap-3 bg-bg-card border-2 border-border text-text-main py-3 px-4 rounded-xl hover:bg-bg-muted transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <svg
               className="w-5 h-5"

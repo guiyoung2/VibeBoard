@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
+import { useThemeStore } from "../stores/themeStore";
 import type { BoardGame } from "../types/boardgame";
 
 interface HeroSliderProps {
@@ -13,6 +14,8 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
   const [startX, setStartX] = useState(0);
   const [currentX, setCurrentX] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const { theme } = useThemeStore();
+  const isDark = theme === "dark";
 
   // name 값으로 보드게임 가져오기
   const { data: featuredGames, isLoading } = useQuery({
@@ -37,7 +40,7 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
   const prevSlide = () => {
     if (featuredGames) {
       setCurrentIndex(
-        (prev) => (prev - 1 + featuredGames.length) % featuredGames.length
+        (prev) => (prev - 1 + featuredGames.length) % featuredGames.length,
       );
     }
   };
@@ -122,7 +125,7 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
   if (isLoading) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600">로딩 중...</p>
+        <p className="text-text-sub">로딩 중...</p>
       </div>
     );
   }
@@ -130,13 +133,13 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
   if (!featuredGames || featuredGames.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600">인기 보드게임이 없습니다.</p>
+        <p className="text-text-sub">인기 보드게임이 없습니다.</p>
       </div>
     );
   }
 
   return (
-    <div className="relative bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className="relative bg-bg-card rounded-lg shadow-card border border-border overflow-hidden">
       {/* 슬라이드 컨테이너 */}
       <div
         ref={sliderRef}
@@ -161,7 +164,7 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 h-full">
               {/* 이미지 영역 */}
-              <div className="relative h-64 md:h-full bg-gray-100 flex items-center justify-center p-4 overflow-hidden">
+              <div className="relative h-64 md:h-full bg-bg-muted flex items-center justify-center p-4 overflow-hidden">
                 {game.image_url ? (
                   <img
                     src={game.image_url}
@@ -169,16 +172,18 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
                     className="w-full h-full object-contain"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-200"></div>
+                  <div className="w-full h-full bg-bg-muted"></div>
                 )}
               </div>
 
               {/* 텍스트 영역 */}
-              <div className="flex flex-col justify-center h-full px-8 py-8 md:px-12 md:py-12 bg-gradient-to-br from-blue-50 to-blue-100">
-                <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <div
+                className={`flex flex-col justify-center h-full px-8 py-8 md:px-12 md:py-12 bg-gradient-to-br ${isDark ? "from-accent/10 to-accent/20" : "from-accent/10 to-accent/15"}`}
+              >
+                <h3 className="text-3xl md:text-4xl font-bold text-text-main mb-4">
                   {game.name}
                 </h3>
-                <p className="text-gray-700 mb-6 text-lg line-clamp-3 md:line-clamp-4">
+                <p className="text-text-sub mb-6 text-lg line-clamp-3 md:line-clamp-4">
                   {game.description || "설명이 없습니다."}
                 </p>
 
@@ -192,7 +197,7 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
                       .map((cat, idx) => (
                         <span
                           key={idx}
-                          className="bg-blue-200 text-blue-800 px-3 py-1 rounded-md text-sm font-medium"
+                          className="bg-primary/10 dark:bg-primary/20 text-primary dark:text-text-main px-3 py-1 rounded-md text-sm font-medium border border-primary/20 dark:border-primary/30"
                         >
                           {cat}
                         </span>
@@ -201,7 +206,7 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
                 )}
 
                 {/* 게임 정보 */}
-                <div className="flex flex-wrap gap-4 text-gray-700">
+                <div className="flex flex-wrap gap-4 text-text-sub">
                   {game.min_players && game.max_players && (
                     <span className="flex items-center gap-2">
                       <svg
@@ -254,8 +259,8 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
               onClick={() => setCurrentIndex(index)}
               className={`h-2 rounded-full transition-all ${
                 index === currentIndex
-                  ? "w-8 bg-blue-600"
-                  : "w-2 bg-gray-300 hover:bg-gray-400"
+                  ? `w-8 ${isDark ? "bg-white" : "bg-accent"}`
+                  : `w-2 ${isDark ? "bg-white/30 hover:bg-white/50" : "bg-accent/30 hover:bg-accent/50"}`
               }`}
               aria-label={`슬라이드 ${index + 1}`}
             />

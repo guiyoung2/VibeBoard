@@ -20,12 +20,12 @@
   --font-noonnu: "Noonnu", sans-serif;
   --font-hakgyoansim: "Hakgyoansim", sans-serif;
 
-  /* 배경 컬러 */
+  /* 배경 컬러 (라이트 모드) */
   --color-bg: #f7f7f5;
   --color-bg-card: #ffffff;
   --color-bg-muted: #f1f1ee;
 
-  /* 메인 컬러 */
+  /* 메인 컬러 (라이트 모드) */
   --color-primary: #1f2937;
   --color-primary-soft: #374151;
 
@@ -33,12 +33,12 @@
   --color-accent: #ef4444;
   --color-accent-hover: #dc2626;
 
-  /* 텍스트 컬러 */
+  /* 텍스트 컬러 (라이트 모드) */
   --color-text-main: #111827;
   --color-text-sub: #6b7280;
   --color-text-muted: #9ca3af;
 
-  /* 보더 컬러 */
+  /* 보더 컬러 (라이트 모드) */
   --color-border: #e5e7eb;
 
   /* 그림자 */
@@ -51,6 +51,33 @@
 
   /* Transition Timing */
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 다크 모드 색상 변수 */
+.dark {
+  /* 배경 컬러 (다크 모드) */
+  --color-bg: #111827;
+  --color-bg-card: #1f2937;
+  --color-bg-muted: #374151;
+
+  /* 메인 컬러 (다크 모드 - 텍스트에 사용) */
+  --color-primary: #f9fafb; /* 다크 모드에서는 밝은 색으로 */
+
+  /* 포인트 컬러 (다크 모드에서도 동일하게 유지) */
+  --color-accent: #ef4444;
+  --color-accent-hover: #dc2626;
+
+  /* 텍스트 컬러 (다크 모드) */
+  --color-text-main: #f9fafb;
+  --color-text-sub: #d1d5db;
+  --color-text-muted: #9ca3af;
+
+  /* 보더 컬러 (다크 모드) */
+  --color-border: #374151;
+
+  /* 그림자 (다크 모드) */
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 /* 페이드 인 애니메이션 */

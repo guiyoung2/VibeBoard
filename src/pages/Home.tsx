@@ -10,7 +10,7 @@ function Home() {
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* 인기 보드게임 히어로 섹션 */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-primary mb-6">
+          <h2 className="text-2xl font-bold text-primary dark:text-text-main mb-6">
             🔥 인기 있는 보드게임
           </h2>
           <HeroSlider gameNames={featuredGameNames} />
@@ -18,7 +18,7 @@ function Home() {
 
         {/* 주변 매장 찾기 섹션 */}
         <section>
-          <div className="relative rounded-xl shadow-card overflow-hidden bg-bg-muted">
+          <div className="relative rounded-xl shadow-card border border-border overflow-hidden bg-bg-card">
             {/* 배경 장식 요소 */}
 
             <div className="relative px-8 py-12 md:px-12 md:py-16">
@@ -36,7 +36,7 @@ function Home() {
 
                 {/* 텍스트 및 버튼 영역 */}
                 <div className="flex flex-col justify-center text-center md:text-left relative z-10">
-                  <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+                  <h2 className="text-3xl md:text-4xl font-bold text-primary dark:text-text-main mb-4">
                     주변 매장을 찾아보세요!
                   </h2>
                   <p className="text-text-sub mb-8 text-lg leading-relaxed">
