@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
 import type { Review, Comment } from "../types/review";
+import { SkeletonDetail, SkeletonCommentList } from "../components/Skeleton";
 
 function ReviewDetail() {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +30,7 @@ function ReviewDetail() {
     data: review,
     isLoading: isLoadingReview,
     error: reviewError,
+    refetch: refetchReview,
   } = useQuery({
     queryKey: ["review", id],
     queryFn: async () => {
@@ -415,11 +417,8 @@ function ReviewDetail() {
 
   if (isLoadingReview) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-text-main">로딩 중...</p>
-        </div>
+      <div className="min-h-screen bg-bg">
+        <SkeletonDetail />
       </div>
     );
   }
@@ -428,14 +427,36 @@ function ReviewDetail() {
     return (
       <div className="min-h-screen bg-bg">
         <div className="max-w-4xl mx-auto px-4 py-12">
-          <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded">
-            <p>리뷰를 찾을 수 없습니다.</p>
-            <Link
-              to="/reviews"
-              className="text-accent underline mt-2 inline-block"
-            >
-              목록으로 돌아가기
-            </Link>
+          <div
+            className="rounded-xl p-6 border"
+            style={{
+              backgroundColor: "var(--color-bg-card)",
+              borderColor: "var(--color-border)",
+            }}
+          >
+            <p className="text-text-main font-medium mb-2">
+              리뷰를 불러오는 중 오류가 발생했습니다.
+            </p>
+            <p className="text-text-sub text-sm mb-4">
+              {reviewError instanceof Error
+                ? reviewError.message
+                : "리뷰를 찾을 수 없습니다."}
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => refetchReview()}
+                className={`px-4 py-2 rounded-lg text-white font-medium ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"}`}
+              >
+                다시 시도
+              </button>
+              <Link
+                to="/reviews"
+                className="px-4 py-2 rounded-lg border border-border text-text-main hover:bg-bg-muted inline-block"
+              >
+                목록으로 돌아가기
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -669,9 +690,7 @@ function ReviewDetail() {
 
           {/* 댓글 목록 */}
           {isLoadingComments ? (
-            <div className="text-center py-8 text-text-sub">
-              <p>댓글을 불러오는 중...</p>
-            </div>
+            <SkeletonCommentList count={3} />
           ) : comments.length > 0 ? (
             <div className="space-y-6">
               {comments.map((comment) => (

@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
 import type { Review } from "../types/review";
+import { SkeletonReviewList } from "../components/Skeleton";
 
 type SortOption = "none" | "rating-high" | "rating-low";
 
@@ -24,6 +25,7 @@ function Reviews() {
     data: reviews,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: ["reviews"],
     queryFn: async () => {
@@ -228,14 +230,20 @@ function Reviews() {
 
         <div className="space-y-6">
           {isLoading ? (
-            <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border text-center">
-              <p className="text-text-sub">로딩 중...</p>
-            </div>
+            <SkeletonReviewList count={5} />
           ) : error ? (
             <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border text-center">
-              <p className="text-red-600 dark:text-red-400">
+              <p className="text-text-main font-medium mb-2">
                 리뷰를 불러오는 중 오류가 발생했습니다.
               </p>
+              <p className="text-text-sub text-sm mb-4">{error.message}</p>
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className={`px-6 py-2 rounded-lg text-white font-medium ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"}`}
+              >
+                다시 시도
+              </button>
             </div>
           ) : displayedReviews.length > 0 ? (
             <>

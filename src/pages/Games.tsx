@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { useThemeStore } from "../stores/themeStore";
 import type { BoardGame } from "../types/boardgame";
 import GameCard from "../components/GameCard";
+import { SkeletonGameGrid } from "../components/Skeleton";
 
 interface FilterState {
   players: number | null; // 2, 3, 4, 5, 6, 7 (7은 7인 이상)
@@ -30,6 +31,8 @@ function Games() {
     data: boardgames,
     isLoading,
     error,
+    refetch,
+    isError,
   } = useQuery({
     queryKey: ["boardgames"],
     queryFn: async () => {
@@ -301,22 +304,34 @@ function Games() {
           </div>
         </div>
 
-        {/* 로딩 상태 */}
-        {isLoading && (
-          <div className="text-center py-12">
-            <p className="text-text-sub">로딩 중...</p>
-          </div>
-        )}
+        {/* 로딩 상태 - 스켈레톤 */}
+        {isLoading && <SkeletonGameGrid count={6} />}
 
-        {/* 에러 상태 */}
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-8">
-            <p>에러 발생: {error.message}</p>
+        {/* 에러 상태 - 재시도 버튼 */}
+        {isError && error && (
+          <div
+            className="bg-bg-card border border-border rounded-xl p-6 mb-8 text-center"
+            style={{
+              borderColor: "var(--color-border)",
+              backgroundColor: "var(--color-bg-card)",
+            }}
+          >
+            <p className="text-text-main font-medium mb-2">
+              데이터를 불러오는 중 오류가 발생했습니다.
+            </p>
+            <p className="text-text-sub text-sm mb-4">{error.message}</p>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className={`px-6 py-2 rounded-lg text-white font-medium ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"}`}
+            >
+              다시 시도
+            </button>
           </div>
         )}
 
         {/* 게임 목록 */}
-        {boardgames && (
+        {boardgames && !isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGames.length === 0 ? (
               <div className="col-span-full text-center py-12">

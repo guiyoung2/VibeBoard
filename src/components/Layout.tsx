@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
+import { NetworkStatus } from "./NetworkStatus";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -24,6 +25,7 @@ function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-bg font-hakgyoansim">
+      <NetworkStatus />
       {/* Header */}
       <header className="bg-bg-card shadow-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-4">

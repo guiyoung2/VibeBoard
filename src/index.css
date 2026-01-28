@@ -96,3 +96,20 @@
   animation: fade-in 0.5s ease-out;
   opacity: 0;
 }
+
+/* 스켈레톤 펄스 애니메이션 */
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.skeleton {
+  background-color: var(--color-bg-muted);
+  border-radius: var(--radius-xl);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}

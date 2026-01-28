@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useThemeStore } from "../stores/themeStore";
 import type { BoardGame } from "../types/boardgame";
+import { SkeletonHero } from "./Skeleton";
 
 interface HeroSliderProps {
   gameNames: string[];
@@ -18,7 +19,11 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
   const isDark = theme === "dark";
 
   // name 값으로 보드게임 가져오기
-  const { data: featuredGames, isLoading } = useQuery({
+  const {
+    data: featuredGames,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["popular-games", gameNames],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -123,17 +128,24 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
   }, [featuredGames, isDragging]);
 
   if (isLoading) {
+    return <SkeletonHero />;
+  }
+
+  if (error) {
     return (
-      <div className="text-center py-12">
-        <p className="text-text-sub">로딩 중...</p>
+      <div className="bg-bg-card rounded-xl border border-border p-8 text-center">
+        <p className="text-text-main font-medium mb-2">
+          인기 보드게임을 불러오지 못했습니다.
+        </p>
+        <p className="text-text-sub text-sm">{error.message}</p>
       </div>
     );
   }
 
   if (!featuredGames || featuredGames.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-text-sub">인기 보드게임이 없습니다.</p>
+      <div className="text-center py-12 text-text-sub">
+        인기 보드게임이 없습니다.
       </div>
     );
   }
