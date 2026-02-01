@@ -25,6 +25,7 @@ function ReviewCreate() {
     rating?: string;
     content?: string;
   }>({});
+  const [blockMessage, setBlockMessage] = useState<string | null>(null);
 
   // 보드게임 목록 가져오기
   const { data: boardgames, isLoading: isLoadingGames } = useQuery({
@@ -74,6 +75,13 @@ function ReviewCreate() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    setBlockMessage(null);
+
+    // 배포 등 리뷰 작성 비활성화 시: 경고만 표시하고 등록하지 않음
+    if (!allowReviewCreate) {
+      setBlockMessage("현재 배포 환경에서는 리뷰 작성이 되지 않습니다.");
+      return;
+    }
 
     // 검증
     const newErrors: typeof errors = {};
@@ -100,31 +108,6 @@ function ReviewCreate() {
     // 리뷰 작성
     createReviewMutation.mutate(formData);
   };
-
-  // 배포 환경에서 리뷰 작성 비활성화 시 (훅 호출은 모두 위에서 완료)
-  if (!allowReviewCreate) {
-    return (
-      <div className="min-h-screen bg-bg">
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border text-center">
-            <p className="text-text-main mb-4">
-              현재 리뷰 작성은 받지 않습니다.
-            </p>
-            <Link
-              to="/reviews"
-              className={`inline-block px-6 py-2 rounded-lg text-white ${
-                isDark
-                  ? "bg-accent hover:bg-accent-hover"
-                  : "bg-primary hover:bg-primary-soft"
-              }`}
-            >
-              목록으로
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // 로그인하지 않은 경우
   if (!user) {
@@ -254,6 +237,13 @@ function ReviewCreate() {
               <p className="mt-1 text-sm text-red-600">{errors.content}</p>
             )}
           </div>
+
+          {/* 리뷰 작성 비활성화 시 제출 시 표시되는 경고 */}
+          {blockMessage && (
+            <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg text-amber-800 dark:text-amber-200 text-sm font-medium">
+              {blockMessage}
+            </div>
+          )}
 
           {/* 에러 메시지 */}
           {createReviewMutation.error && (
