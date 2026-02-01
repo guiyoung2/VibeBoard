@@ -43,7 +43,10 @@ function ReviewCreate() {
   // 리뷰 작성 mutation
   const createReviewMutation = useMutation({
     mutationFn: async (data: ReviewFormData) => {
-      if (!allowReviewCreate) throw new Error("현재 리뷰 작성은 받지 않습니다.");
+      if (!allowReviewCreate)
+        throw new Error(
+          "현재 리뷰 작성은 프로젝트 설정에 따라 허용되지 않습니다.",
+        );
       if (!user) throw new Error("로그인이 필요합니다.");
 
       const { data: review, error } = await supabase
@@ -109,7 +112,11 @@ function ReviewCreate() {
             </p>
             <Link
               to="/reviews"
-              className={`inline-block px-6 py-2 rounded-lg text-white ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"}`}
+              className={`inline-block px-6 py-2 rounded-lg text-white ${
+                isDark
+                  ? "bg-accent hover:bg-accent-hover"
+                  : "bg-primary hover:bg-primary-soft"
+              }`}
             >
               목록으로
             </Link>
@@ -130,7 +137,11 @@ function ReviewCreate() {
             </p>
             <button
               onClick={() => navigate("/auth/login")}
-              className={`${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white px-6 py-2 rounded-lg transition-colors`}
+              className={`${
+                isDark
+                  ? "bg-accent hover:bg-accent-hover"
+                  : "bg-primary hover:bg-primary-soft"
+              } text-white px-6 py-2 rounded-lg transition-colors`}
             >
               로그인하기
             </button>
@@ -265,7 +276,11 @@ function ReviewCreate() {
             <button
               type="submit"
               disabled={createReviewMutation.isPending}
-              className={`px-6 py-2 ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`px-6 py-2 ${
+                isDark
+                  ? "bg-accent hover:bg-accent-hover"
+                  : "bg-primary hover:bg-primary-soft"
+              } text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {createReviewMutation.isPending ? "작성 중..." : "리뷰 작성"}
             </button>
