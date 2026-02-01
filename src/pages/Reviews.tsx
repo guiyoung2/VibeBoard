@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
-import { allowReviewCreate } from "../lib/featureFlags";
 import type { Review } from "../types/review";
 import { SkeletonReviewList } from "../components/Skeleton";
 
@@ -187,19 +186,17 @@ function Reviews() {
             게임 후기
           </h1>
           <div className="flex items-center gap-3">
-            {allowReviewCreate && !user && (
+            {!user && (
               <span className="text-sm text-text-sub">
                 로그인 후 작성할 수 있습니다
               </span>
             )}
-            {allowReviewCreate && (
-              <Link
-                to={user ? "/reviews/create" : "/auth/login"}
-                className={`px-6 py-2 ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white rounded-lg transition-colors font-medium`}
-              >
-                리뷰 작성
-              </Link>
-            )}
+            <Link
+              to={user ? "/reviews/create" : "/auth/login"}
+              className={`px-6 py-2 ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white rounded-lg transition-colors font-medium`}
+            >
+              리뷰 작성
+            </Link>
           </div>
         </div>
 
