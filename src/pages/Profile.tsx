@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
+import { allowReviewCreate } from "../lib/featureFlags";
 import type { Review } from "../types/review";
 import { SkeletonReviewList } from "../components/Skeleton";
 
@@ -318,12 +319,14 @@ function Profile() {
                 ) : myReviews.length === 0 ? (
                   <div className="text-center py-12 text-text-sub">
                     <p className="mb-4">아직 작성한 리뷰가 없습니다.</p>
-                    <Link
-                      to="/reviews/create"
-                      className={`inline-block px-4 py-2 rounded-lg text-white text-sm font-medium ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"}`}
-                    >
-                      리뷰 작성하기
-                    </Link>
+                    {allowReviewCreate && (
+                      <Link
+                        to="/reviews/create"
+                        className={`inline-block px-4 py-2 rounded-lg text-white text-sm font-medium ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"}`}
+                      >
+                        리뷰 작성하기
+                      </Link>
+                    )}
                   </div>
                 ) : (
                   <ul className="space-y-4">

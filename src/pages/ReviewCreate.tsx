@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
+import { allowReviewCreate } from "../lib/featureFlags";
 import type { BoardGame } from "../types/boardgame";
 import type { ReviewFormData } from "../types/review";
 
@@ -42,6 +43,7 @@ function ReviewCreate() {
   // 리뷰 작성 mutation
   const createReviewMutation = useMutation({
     mutationFn: async (data: ReviewFormData) => {
+      if (!allowReviewCreate) throw new Error("현재 리뷰 작성은 받지 않습니다.");
       if (!user) throw new Error("로그인이 필요합니다.");
 
       const { data: review, error } = await supabase
@@ -95,6 +97,27 @@ function ReviewCreate() {
     // 리뷰 작성
     createReviewMutation.mutate(formData);
   };
+
+  // 배포 환경에서 리뷰 작성 비활성화 시 (훅 호출은 모두 위에서 완료)
+  if (!allowReviewCreate) {
+    return (
+      <div className="min-h-screen bg-bg">
+        <div className="max-w-4xl mx-auto px-4 py-12">
+          <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border text-center">
+            <p className="text-text-main mb-4">
+              현재 리뷰 작성은 받지 않습니다.
+            </p>
+            <Link
+              to="/reviews"
+              className={`inline-block px-6 py-2 rounded-lg text-white ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"}`}
+            >
+              목록으로
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // 로그인하지 않은 경우
   if (!user) {
