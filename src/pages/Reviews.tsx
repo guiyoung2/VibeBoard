@@ -1,10 +1,11 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 import { useIsDark } from "../stores/themeStore";
 import type { Review } from "../types/review";
+import { useInfiniteDisplay } from "../hooks/useInfiniteDisplay";
 import { ErrorMessageWithRetry } from "../components/ErrorMessageWithRetry";
 import { SkeletonReviewList } from "../components/Skeleton";
 import { StarRating } from "../components/StarRating";
@@ -14,10 +15,6 @@ type SortOption = "none" | "rating-high" | "rating-low";
 function Reviews() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("none");
-  const [displayCount, setDisplayCount] = useState(3); // 초기 표시 개수
-  const [prevDisplayCount, setPrevDisplayCount] = useState(0); // 이전 표시 개수 (애니메이션용)
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-  const ITEMS_PER_PAGE = 3; // 한 번에 추가로 로드할 개수
   const { user } = useAuthStore();
   const isDark = useIsDark();
 
@@ -140,39 +137,13 @@ function Reviews() {
     return filtered;
   }, [reviews, searchQuery, sortOption]);
 
-  // 표시할 리뷰 목록 (무한 스크롤용)
-  const displayedReviews = useMemo(() => {
-    return filteredReviews.slice(0, displayCount);
-  }, [filteredReviews, displayCount]);
-
-  // Intersection Observer로 무한 스크롤 구현
-  useEffect(() => {
-    const loadMoreElement = loadMoreRef.current;
-    if (!loadMoreElement || displayedReviews.length >= filteredReviews.length) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setDisplayCount((prev) => {
-            setPrevDisplayCount(prev); // 이전 값 저장 (애니메이션용)
-            return Math.min(prev + ITEMS_PER_PAGE, filteredReviews.length);
-          });
-        }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: "100px", // 뷰포트 하단에서 100px 전에 미리 로드
-      },
-    );
-
-    observer.observe(loadMoreElement);
-
-    return () => {
-      observer.unobserve(loadMoreElement);
-    };
-  }, [displayedReviews.length, filteredReviews.length]);
+  const {
+    slicedItems: displayedReviews,
+    loadMoreRef,
+    hasMore,
+    prevDisplayCount,
+    reset: infiniteReset,
+  } = useInfiniteDisplay(filteredReviews, { pageSize: 3, initialSize: 3 });
 
   return (
     <div className="min-h-screen bg-bg">
@@ -204,8 +175,7 @@ function Reviews() {
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              setPrevDisplayCount(0); // 검색어 변경 시 리셋
-              setDisplayCount(3);
+              infiniteReset(3);
             }}
             className="flex-1 max-w-2xl px-4 py-2 border border-border rounded-lg bg-bg-card text-text-main placeholder:text-text-sub focus:outline-none focus:ring-2 focus:ring-primary"
           />
@@ -213,8 +183,7 @@ function Reviews() {
             value={sortOption}
             onChange={(e) => {
               setSortOption(e.target.value as SortOption);
-              setPrevDisplayCount(0); // 정렬 옵션 변경 시 리셋
-              setDisplayCount(3);
+              infiniteReset(3);
             }}
             className="px-4 py-2 border border-border rounded-lg bg-bg-card text-text-main focus:outline-none focus:ring-2 focus:ring-primary"
           >
@@ -312,7 +281,7 @@ function Reviews() {
                 );
               })}
               {/* 무한 스크롤 트리거 */}
-              {displayedReviews.length < filteredReviews.length && (
+              {hasMore && (
                 <div ref={loadMoreRef} className="py-8 text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                   <p className="mt-2 text-sm text-text-sub">

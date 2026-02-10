@@ -1,7 +1,8 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import type { BoardGame } from "../types/boardgame";
+import { useInfiniteDisplay } from "../hooks/useInfiniteDisplay";
 import GameCard from "../components/GameCard";
 import { Button } from "../components/Button";
 import { ErrorMessageWithRetry } from "../components/ErrorMessageWithRetry";
@@ -20,11 +21,6 @@ function Games() {
     difficulty: null,
     playTime: null,
   });
-  const [displayCount, setDisplayCount] = useState(6); // 초기 표시 개수
-  const [prevDisplayCount, setPrevDisplayCount] = useState(0); // 이전 표시 개수 (애니메이션용)
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-  const ITEMS_PER_PAGE = 3; // 한 번에 추가로 로드할 개수
-
   // Supabase에서 보드게임 데이터 가져오기
   const {
     data: boardgames,
@@ -47,9 +43,7 @@ function Games() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // 검색 시 displayCount 리셋
-    setPrevDisplayCount(0);
-    setDisplayCount(ITEMS_PER_PAGE);
+    infiniteReset(3);
   };
 
   // 필터링된 게임 목록
@@ -118,56 +112,23 @@ function Games() {
     });
   }, [boardgames, searchQuery, filters]);
 
-  // 표시할 게임 목록 (무한 스크롤용)
-  const displayedGames = useMemo(() => {
-    return filteredGames.slice(0, displayCount);
-  }, [filteredGames, displayCount]);
-
-  // Intersection Observer로 무한 스크롤 구현
-  useEffect(() => {
-    const loadMoreElement = loadMoreRef.current;
-    if (!loadMoreElement || displayedGames.length >= filteredGames.length) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          // 하단에 도달하면 더 많은 항목 표시
-          setDisplayCount((prev) => {
-            setPrevDisplayCount(prev); // 이전 값 저장 (애니메이션용)
-            return Math.min(prev + ITEMS_PER_PAGE, filteredGames.length);
-          });
-        }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: "100px", // 뷰포트(화면) 하단에서 100px 전에 미리 로드
-        // 브라우저 화면(viewport) 기준
-      },
-    );
-
-    observer.observe(loadMoreElement);
-
-    return () => {
-      observer.unobserve(loadMoreElement);
-    };
-  }, [displayedGames.length, filteredGames.length]);
+  const {
+    slicedItems: displayedGames,
+    loadMoreRef,
+    hasMore,
+    prevDisplayCount,
+    reset: infiniteReset,
+  } = useInfiniteDisplay(filteredGames, { pageSize: 3, initialSize: 6 });
 
   const handleFilterChange = (
     type: keyof FilterState,
     value: number | string | null,
   ) => {
-    setFilters((prev) => {
-      const newFilters = {
-        ...prev,
-        [type]: prev[type] === value ? null : value, // 토글 방식
-      };
-      // 필터 변경 시 displayCount 리셋
-      setPrevDisplayCount(0);
-      setDisplayCount(ITEMS_PER_PAGE);
-      return newFilters;
-    });
+    setFilters((prev) => ({
+      ...prev,
+      [type]: prev[type] === value ? null : value,
+    }));
+    infiniteReset(3);
   };
 
   return (
@@ -185,9 +146,7 @@ function Games() {
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
-                // 검색어 변경 시 displayCount 리셋
-                setPrevDisplayCount(0);
-                setDisplayCount(ITEMS_PER_PAGE);
+                infiniteReset(3);
               }}
               placeholder="보드게임 이름으로 검색..."
               className="flex-1 px-4 py-2 border border-border rounded-lg bg-bg-card text-text-main placeholder:text-text-sub focus:outline-none focus:ring-2 focus:ring-primary"
@@ -289,8 +248,7 @@ function Games() {
                     difficulty: null,
                     playTime: null,
                   });
-                  setPrevDisplayCount(0);
-                  setDisplayCount(ITEMS_PER_PAGE);
+                  infiniteReset(3);
                 }}
                 className="text-sm text-blue-600 hover:text-blue-700 underline"
               >
@@ -341,7 +299,7 @@ function Games() {
                   );
                 })}
                 {/* 무한 스크롤 트리거 요소 */}
-                {displayedGames.length < filteredGames.length && (
+                {hasMore && (
                   <div
                     ref={loadMoreRef}
                     className="col-span-full flex justify-center items-center py-8"
