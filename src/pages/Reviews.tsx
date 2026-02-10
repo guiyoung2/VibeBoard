@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
 import type { Review } from "../types/review";
+import { ErrorMessageWithRetry } from "../components/ErrorMessageWithRetry";
 import { SkeletonReviewList } from "../components/Skeleton";
 import { StarRating } from "../components/StarRating";
 
@@ -228,19 +229,12 @@ function Reviews() {
           {isLoading ? (
             <SkeletonReviewList count={5} />
           ) : error ? (
-            <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border text-center">
-              <p className="text-text-main font-medium mb-2">
-                리뷰를 불러오는 중 오류가 발생했습니다.
-              </p>
-              <p className="text-text-sub text-sm mb-4">{error.message}</p>
-              <button
-                type="button"
-                onClick={() => refetch()}
-                className={`px-6 py-2 rounded-lg text-white font-medium ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"}`}
-              >
-                다시 시도
-              </button>
-            </div>
+            <ErrorMessageWithRetry
+              message="리뷰를 불러오는 중 오류가 발생했습니다."
+              detail={error.message}
+              onRetry={() => refetch()}
+              className="p-8 shadow-card"
+            />
           ) : displayedReviews.length > 0 ? (
             <>
               {displayedReviews.map((review, index) => {

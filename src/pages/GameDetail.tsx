@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import type { BoardGame } from "../types/boardgame";
+import { ErrorMessageWithRetry } from "../components/ErrorMessageWithRetry";
 import { SkeletonDetail } from "../components/Skeleton";
 
 function GameDetail() {
@@ -55,37 +56,12 @@ function GameDetail() {
     return (
       <div className="min-h-screen bg-bg">
         <div className="max-w-4xl mx-auto px-4 py-12">
-          <div
-            className="rounded-xl p-6 border"
-            style={{
-              backgroundColor: "var(--color-bg-card)",
-              borderColor: "var(--color-border)",
-            }}
-          >
-            <p className="text-text-main font-medium mb-2">
-              보드게임을 불러오는 중 오류가 발생했습니다.
-            </p>
-            <p className="text-text-sub text-sm mb-4">
-              {error instanceof Error
-                ? error.message
-                : "데이터를 찾을 수 없습니다."}
-            </p>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => refetch()}
-                className="px-4 py-2 rounded-lg text-white bg-accent hover:bg-accent-hover font-medium"
-              >
-                다시 시도
-              </button>
-              <Link
-                to="/games"
-                className="px-4 py-2 rounded-lg border border-border text-text-main hover:bg-bg-muted inline-block"
-              >
-                목록으로 돌아가기
-              </Link>
-            </div>
-          </div>
+          <ErrorMessageWithRetry
+            message="보드게임을 불러오는 중 오류가 발생했습니다."
+            detail={error instanceof Error ? error.message : "데이터를 찾을 수 없습니다."}
+            onRetry={() => refetch()}
+            secondaryLink={{ to: "/games", label: "목록으로 돌아가기" }}
+          />
         </div>
       </div>
     );

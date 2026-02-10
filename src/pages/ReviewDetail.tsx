@@ -6,6 +6,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
 import type { Review, Comment } from "../types/review";
 import { SkeletonDetail, SkeletonCommentList } from "../components/Skeleton";
+import { ErrorMessageWithRetry } from "../components/ErrorMessageWithRetry";
 import { StarRating } from "../components/StarRating";
 
 function ReviewDetail() {
@@ -423,37 +424,12 @@ function ReviewDetail() {
     return (
       <div className="min-h-screen bg-bg">
         <div className="max-w-4xl mx-auto px-4 py-12">
-          <div
-            className="rounded-xl p-6 border"
-            style={{
-              backgroundColor: "var(--color-bg-card)",
-              borderColor: "var(--color-border)",
-            }}
-          >
-            <p className="text-text-main font-medium mb-2">
-              리뷰를 불러오는 중 오류가 발생했습니다.
-            </p>
-            <p className="text-text-sub text-sm mb-4">
-              {reviewError instanceof Error
-                ? reviewError.message
-                : "리뷰를 찾을 수 없습니다."}
-            </p>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => refetchReview()}
-                className={`px-4 py-2 rounded-lg text-white font-medium ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"}`}
-              >
-                다시 시도
-              </button>
-              <Link
-                to="/reviews"
-                className="px-4 py-2 rounded-lg border border-border text-text-main hover:bg-bg-muted inline-block"
-              >
-                목록으로 돌아가기
-              </Link>
-            </div>
-          </div>
+          <ErrorMessageWithRetry
+            message="리뷰를 불러오는 중 오류가 발생했습니다."
+            detail={reviewError instanceof Error ? reviewError.message : "리뷰를 찾을 수 없습니다."}
+            onRetry={() => refetchReview()}
+            secondaryLink={{ to: "/reviews", label: "목록으로 돌아가기" }}
+          />
         </div>
       </div>
     );

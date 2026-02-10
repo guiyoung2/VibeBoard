@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
 import type { Review } from "../types/review";
+import { ErrorMessageWithRetry } from "../components/ErrorMessageWithRetry";
 import { SkeletonReviewList } from "../components/Skeleton";
 import { StarRating } from "../components/StarRating";
 
@@ -302,18 +303,12 @@ function Profile() {
                 {isLoadingReviews ? (
                   <SkeletonReviewList count={3} />
                 ) : reviewsError ? (
-                  <div className="text-center py-8">
-                    <p className="text-text-sub mb-4">
-                      리뷰 목록을 불러오는 중 오류가 발생했습니다.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => refetchReviews()}
-                      className={`px-4 py-2 rounded-lg text-white text-sm font-medium ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"}`}
-                    >
-                      다시 시도
-                    </button>
-                  </div>
+                  <ErrorMessageWithRetry
+                    message="리뷰 목록을 불러오는 중 오류가 발생했습니다."
+                    onRetry={() => refetchReviews()}
+                    size="sm"
+                    className="!p-0 !border-0 !bg-transparent text-center py-8"
+                  />
                 ) : myReviews.length === 0 ? (
                   <div className="text-center py-12 text-text-sub">
                     <p className="mb-4">아직 작성한 리뷰가 없습니다.</p>
