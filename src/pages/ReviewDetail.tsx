@@ -3,19 +3,18 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
-import { useThemeStore } from "../stores/themeStore";
 import type { Review, Comment } from "../types/review";
-import { SkeletonDetail, SkeletonCommentList } from "../components/Skeleton";
+import { CommentSection } from "../components/CommentSection";
 import { ErrorMessageWithRetry } from "../components/ErrorMessageWithRetry";
-import { StarRating } from "../components/StarRating";
+import { ReviewContent } from "../components/ReviewContent";
+import { ReviewDetailHeader } from "../components/ReviewDetailHeader";
+import { SkeletonDetail } from "../components/Skeleton";
 
 function ReviewDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
   const [commentContent, setCommentContent] = useState("");
 
   // 리뷰 수정 상태
@@ -446,328 +445,45 @@ function ReviewDetail() {
         </Link>
 
         <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border">
-          {/* 헤더 */}
-          <div className="flex items-start justify-between mb-6 pb-6 border-b border-border">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-primary/20 dark:bg-primary/30 rounded-full flex items-center justify-center">
-                <span className="text-primary dark:text-text-main font-semibold text-xl">
-                  {review.profile?.nickname?.[0] || "U"}
-                </span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-text-main mb-1">
-                  {review.profile?.nickname || "익명 사용자"}의 리뷰
-                </h1>
-                <p className="text-sm text-text-sub">
-                  {new Date(review.created_at).toLocaleDateString("ko-KR", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="mb-2">
-                <StarRating value={review.rating} />
-              </div>
-              <p className="text-lg font-semibold text-text-main">
-                {review.rating} / 5점
-              </p>
-            </div>
-          </div>
-
-          {/* 게임 정보 */}
-          {review.boardgame && (
-            <div className="mb-6 pb-6 border-b border-border">
-              <div className="inline-flex items-center gap-3">
-                {review.boardgame.image_url && (
-                  <img
-                    src={review.boardgame.image_url}
-                    alt={review.boardgame.name}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
-                )}
-                <div>
-                  <p className="text-sm text-text-sub mb-1">리뷰한 게임</p>
-                  <p className="text-xl font-bold text-accent">
-                    {review.boardgame.name}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 리뷰 내용 */}
-          <div>
-            <h2 className="text-xl font-semibold text-text-main mb-4">
-              리뷰 내용
-            </h2>
-            {isEditingReview ? (
-              <form onSubmit={handleUpdateReview} className="space-y-4">
-                {/* 평점 수정 */}
-                <div>
-                  <label className="block text-sm font-bold text-text-main mb-2">
-                    평점 *
-                  </label>
-                  <StarRating
-                    value={editReviewRating}
-                    onChange={setEditReviewRating}
-                    showScore
-                  />
-                </div>
-
-                {/* 내용 수정 */}
-                <div>
-                  <label className="block text-sm font-bold text-text-main mb-2">
-                    리뷰 내용 *
-                  </label>
-                  <textarea
-                    value={editReviewContent}
-                    onChange={(e) => setEditReviewContent(e.target.value)}
-                    rows={10}
-                    placeholder="게임에 대한 솔직한 리뷰를 작성해주세요..."
-                    className="w-full px-4 py-3 border border-border rounded-lg bg-bg text-text-main placeholder:text-text-sub focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                    required
-                    minLength={10}
-                  />
-                  <p className="mt-1 text-sm text-text-sub">
-                    {editReviewContent.length}자 / 최소 10자 이상
-                  </p>
-                </div>
-
-                {updateReviewMutation.error && (
-                  <p className="text-sm text-red-600 dark:text-red-400">
-                    {updateReviewMutation.error instanceof Error
-                      ? updateReviewMutation.error.message
-                      : "리뷰 수정 중 오류가 발생했습니다."}
-                  </p>
-                )}
-
-                <div className="flex gap-2 justify-end">
-                  <button
-                    type="button"
-                    onClick={handleCancelEditReview}
-                    className="px-6 py-2 border border-border rounded-lg text-text-main hover:bg-bg-muted transition-colors"
-                  >
-                    취소
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={
-                      updateReviewMutation.isPending ||
-                      !editReviewContent.trim() ||
-                      editReviewRating === 0
-                    }
-                    className={`px-6 py-2 ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    {updateReviewMutation.isPending
-                      ? "수정 중..."
-                      : "수정 완료"}
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <div>
-                <p className="text-text-main leading-relaxed whitespace-pre-wrap text-lg mb-4">
-                  {review.content}
-                </p>
-                {/* 리뷰 작성자만 수정/삭제 버튼 표시 */}
-                {user && review.user_id === user.id && (
-                  <div className="flex gap-2 justify-end mt-4">
-                    <button
-                      onClick={handleStartEditReview}
-                      className="px-4 py-2 text-sm text-text-sub hover:text-text-main transition-colors border border-border rounded-lg hover:bg-bg-muted"
-                    >
-                      수정
-                    </button>
-                    <button
-                      onClick={handleDeleteReview}
-                      disabled={deleteReviewMutation.isPending}
-                      className="px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors disabled:opacity-50 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
-                    >
-                      {deleteReviewMutation.isPending ? "삭제 중..." : "삭제"}
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <ReviewDetailHeader review={review} />
+          <ReviewContent
+            review={review}
+            isEditing={isEditingReview}
+            editRating={editReviewRating}
+            editContent={editReviewContent}
+            onEditRatingChange={setEditReviewRating}
+            onEditContentChange={setEditReviewContent}
+            onStartEdit={handleStartEditReview}
+            onCancelEdit={handleCancelEditReview}
+            onUpdate={handleUpdateReview}
+            onDelete={handleDeleteReview}
+            currentUserId={user?.id}
+            isUpdatePending={updateReviewMutation.isPending}
+            isDeletePending={deleteReviewMutation.isPending}
+            updateError={updateReviewMutation.error}
+          />
         </div>
 
-        {/* 댓글 섹션 */}
-        <div className="mt-8 bg-bg-card p-8 rounded-xl shadow-card border border-border">
-          <h2 className="text-2xl font-bold text-primary dark:text-text-main mb-6">
-            댓글 ({comments.length})
-          </h2>
-
-          {/* 댓글 작성 폼 */}
-          {user ? (
-            <form onSubmit={handleCommentSubmit} className="mb-8">
-              <textarea
-                value={commentContent}
-                onChange={(e) => setCommentContent(e.target.value)}
-                placeholder="댓글을 작성해주세요..."
-                rows={4}
-                className="w-full px-4 py-3 border border-border rounded-lg bg-bg text-text-main placeholder:text-text-sub focus:outline-none focus:ring-2 focus:ring-primary resize-none mb-3"
-                disabled={createCommentMutation.isPending}
-              />
-              {createCommentMutation.error && (
-                <p className="mb-3 text-sm text-red-600 dark:text-red-400">
-                  {createCommentMutation.error instanceof Error
-                    ? createCommentMutation.error.message
-                    : "댓글 작성 중 오류가 발생했습니다."}
-                </p>
-              )}
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={
-                    createCommentMutation.isPending || !commentContent.trim()
-                  }
-                  className={`${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary/90"} text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  {createCommentMutation.isPending ? "작성 중..." : "댓글 작성"}
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="mb-8 p-4 bg-bg-muted rounded-lg text-center">
-              <p className="text-text-sub mb-2">
-                댓글을 작성하려면 로그인이 필요합니다.
-              </p>
-              <Link
-                to="/auth/login"
-                className="text-accent hover:text-accent-hover underline"
-              >
-                로그인하기
-              </Link>
-            </div>
-          )}
-
-          {/* 댓글 목록 */}
-          {isLoadingComments ? (
-            <SkeletonCommentList count={3} />
-          ) : comments.length > 0 ? (
-            <div className="space-y-6">
-              {comments.map((comment) => (
-                <div
-                  key={comment.id}
-                  className="p-4 bg-bg rounded-lg border border-border"
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 bg-primary/20 dark:bg-primary/30 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-primary dark:text-text-main font-semibold">
-                        {comment.profile?.nickname?.[0] || "U"}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-text-main">
-                            {comment.profile?.nickname || "익명 사용자"}
-                          </h3>
-                          <p className="text-sm text-text-sub">
-                            {new Date(comment.created_at).toLocaleDateString(
-                              "ko-KR",
-                              {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              },
-                            )}
-                          </p>
-                        </div>
-                        {/* 댓글 작성자만 수정/삭제 버튼 표시 */}
-                        {user &&
-                          comment.user_id === user.id &&
-                          !editingCommentId && (
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => handleStartEditComment(comment)}
-                                className="text-xs text-text-sub hover:text-text-main transition-colors"
-                              >
-                                수정
-                              </button>
-                              <button
-                                onClick={() => handleDeleteComment(comment.id)}
-                                disabled={deleteCommentMutation.isPending}
-                                className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors disabled:opacity-50"
-                              >
-                                삭제
-                              </button>
-                            </div>
-                          )}
-                      </div>
-                      {editingCommentId === comment.id ? (
-                        <form
-                          onSubmit={handleUpdateComment}
-                          className="space-y-2"
-                        >
-                          <textarea
-                            id={`edit-comment-${comment.id}`}
-                            name={`edit-comment-${comment.id}`}
-                            value={editCommentContent}
-                            onChange={(e) =>
-                              setEditCommentContent(e.target.value)
-                            }
-                            rows={3}
-                            className="w-full px-3 py-2 border border-border rounded-lg bg-bg text-text-main placeholder:text-text-sub focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                            required
-                          />
-                          {updateCommentMutation.error && (
-                            <div className="p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-xs text-red-600 dark:text-red-400">
-                              <p className="font-semibold mb-1">
-                                댓글 수정 실패
-                              </p>
-                              <p>
-                                {updateCommentMutation.error instanceof Error
-                                  ? updateCommentMutation.error.message
-                                  : "댓글 수정 중 오류가 발생했습니다."}
-                              </p>
-                              <p className="mt-1 text-red-500">
-                                Supabase RLS 정책을 확인해주세요.
-                              </p>
-                            </div>
-                          )}
-                          <div className="flex gap-2 justify-end">
-                            <button
-                              type="button"
-                              onClick={handleCancelEditComment}
-                              className="px-3 py-1 text-xs border border-border rounded text-text-main hover:bg-bg-muted transition-colors"
-                            >
-                              취소
-                            </button>
-                            <button
-                              type="submit"
-                              disabled={
-                                updateCommentMutation.isPending ||
-                                !editCommentContent.trim()
-                              }
-                              className={`px-3 py-1 text-xs ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
-                            >
-                              {updateCommentMutation.isPending
-                                ? "수정 중..."
-                                : "수정 완료"}
-                            </button>
-                          </div>
-                        </form>
-                      ) : (
-                        <p className="text-text-main leading-relaxed whitespace-pre-wrap">
-                          {comment.content}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-text-sub">
-              <p>아직 작성된 댓글이 없습니다.</p>
-            </div>
-          )}
-        </div>
+        <CommentSection
+          comments={comments}
+          isLoading={isLoadingComments}
+          currentUserId={user?.id}
+          commentContent={commentContent}
+          onCommentContentChange={setCommentContent}
+          onCommentSubmit={handleCommentSubmit}
+          createError={createCommentMutation.error}
+          isCreatePending={createCommentMutation.isPending}
+          editingCommentId={editingCommentId}
+          editCommentContent={editCommentContent}
+          onEditCommentContentChange={setEditCommentContent}
+          onStartEditComment={handleStartEditComment}
+          onCancelEditComment={handleCancelEditComment}
+          onUpdateComment={handleUpdateComment}
+          onDeleteComment={handleDeleteComment}
+          updateError={updateCommentMutation.error}
+          isUpdatePending={updateCommentMutation.isPending}
+          isDeletePending={deleteCommentMutation.isPending}
+        />
       </div>
     </div>
   );
