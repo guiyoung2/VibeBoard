@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
-import { useThemeStore } from "../stores/themeStore";
+import { useThemeStore, useIsDark } from "../stores/themeStore";
 import { NetworkStatus } from "./NetworkStatus";
 
 interface LayoutProps {
@@ -19,7 +19,7 @@ function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const { user, nickname, signOut } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => {

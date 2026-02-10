@@ -1,4 +1,4 @@
-import { useThemeStore } from "../stores/themeStore";
+import { useIsDark } from "../stores/themeStore";
 import { Button } from "./Button";
 
 export interface AuthFieldErrors {
@@ -43,8 +43,7 @@ export function AuthForm({
   loading,
   onSubmit,
 }: AuthFormProps) {
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   const tabActiveClass = `${isDark ? "bg-accent" : "bg-primary"} text-white shadow-card`;
   const tabInactiveClass = "text-text-sub hover:text-text-main";

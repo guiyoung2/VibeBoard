@@ -1,4 +1,4 @@
-import { useThemeStore } from "../stores/themeStore";
+import { useIsDark } from "../stores/themeStore";
 
 type ButtonVariant = "primary" | "outline" | "danger";
 type ButtonSize = "xs" | "sm" | "md" | "lg";
@@ -25,8 +25,7 @@ export function Button({
   children,
   ...rest
 }: ButtonProps) {
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   const variantClasses: Record<ButtonVariant, string> = {
     primary: isDark

@@ -67,3 +67,9 @@ export const useThemeStore = create<ThemeState>((set, get) => {
     },
   };
 });
+
+/** 테마가 다크 모드인지 여부. useThemeStore 대신 한 줄로 쓸 때 사용 */
+export function useIsDark(): boolean {
+  const theme = useThemeStore((state) => state.theme);
+  return theme === "dark";
+}

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
-import { useThemeStore } from "../stores/themeStore";
+import { useIsDark } from "../stores/themeStore";
 import type { Review } from "../types/review";
 import { ErrorMessageWithRetry } from "../components/ErrorMessageWithRetry";
 import { SkeletonReviewList } from "../components/Skeleton";
@@ -19,8 +19,7 @@ function Reviews() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const ITEMS_PER_PAGE = 3; // 한 번에 추가로 로드할 개수
   const { user } = useAuthStore();
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   // Supabase에서 리뷰 목록 가져오기
   const {

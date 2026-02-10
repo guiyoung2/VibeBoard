@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import { useThemeStore } from "../stores/themeStore";
+import { useIsDark } from "../stores/themeStore";
 import type { KakaoPlace } from "../types/kakao";
 
 interface CafeResultListProps {
@@ -27,8 +27,7 @@ export function CafeResultList({
   resultsListRef,
   hasSearchCenter,
 }: CafeResultListProps) {
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   return (
     <div

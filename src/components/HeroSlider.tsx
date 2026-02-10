@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
-import { useThemeStore } from "../stores/themeStore";
+import { useIsDark } from "../stores/themeStore";
 import type { BoardGame } from "../types/boardgame";
 import { SkeletonHero } from "./Skeleton";
 
@@ -15,8 +15,7 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
   const [startX, setStartX] = useState(0);
   const [currentX, setCurrentX] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   // name 값으로 보드게임 가져오기
   const {

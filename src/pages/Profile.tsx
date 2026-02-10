@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
-import { useThemeStore } from "../stores/themeStore";
+import { useIsDark } from "../stores/themeStore";
 import type { Review } from "../types/review";
 import { Button } from "../components/Button";
 import { ErrorMessageWithRetry } from "../components/ErrorMessageWithRetry";
@@ -21,8 +21,7 @@ function Profile() {
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
+  const isDark = useIsDark();
 
   // 현재 닉네임을 초기값으로 설정
   useEffect(() => {
