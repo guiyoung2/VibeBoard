@@ -6,6 +6,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
 import type { Review } from "../types/review";
 import { SkeletonReviewList } from "../components/Skeleton";
+import { StarRating } from "../components/StarRating";
 
 type SortOption = "none" | "rating-high" | "rating-low";
 
@@ -114,11 +115,6 @@ function Reviews() {
       })) as Review[];
     },
   });
-
-  // 평점을 별표로 표시하는 함수 (채워진 별만)
-  const renderStars = (rating: number) => {
-    return "⭐".repeat(rating);
-  };
 
   // 검색어로 필터링 및 정렬된 리뷰 목록
   const filteredReviews = useMemo(() => {
@@ -291,7 +287,7 @@ function Reviews() {
                       </div>
                       <div className="text-right">
                         <div className="text-lg mb-1">
-                          {renderStars(review.rating)}
+                          <StarRating value={review.rating} className="text-lg" />
                         </div>
                         <p className="text-sm text-text-sub">
                           {review.rating} / 5점

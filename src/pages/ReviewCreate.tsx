@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
 import { allowReviewCreate } from "../lib/featureFlags";
+import { StarRating } from "../components/StarRating";
 import type { BoardGame } from "../types/boardgame";
 import type { ReviewFormData } from "../types/review";
 
@@ -189,28 +190,13 @@ function ReviewCreate() {
             <label className="block text-sm font-bold text-text-main mb-2">
               평점 *
             </label>
-            <div className="flex gap-1 items-center">
-              {[1, 2, 3, 4, 5].map((rating) => (
-                <button
-                  key={rating}
-                  type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, rating }))}
-                  className="w-12 h-12 flex items-center justify-center text-4xl transition-all hover:scale-110 cursor-pointer"
-                  title={`${rating}점`}
-                >
-                  {formData.rating >= rating ? (
-                    <span className="text-yellow-400">⭐</span>
-                  ) : (
-                    <span className="text-gray-400">☆</span>
-                  )}
-                </button>
-              ))}
-              {formData.rating > 0 && (
-                <span className="ml-4 text-lg font-semibold text-text-main">
-                  {formData.rating}점
-                </span>
-              )}
-            </div>
+            <StarRating
+              value={formData.rating}
+              onChange={(rating) =>
+                setFormData((prev) => ({ ...prev, rating }))
+              }
+              showScore
+            />
             {errors.rating && (
               <p className="mt-1 text-sm text-red-600">{errors.rating}</p>
             )}

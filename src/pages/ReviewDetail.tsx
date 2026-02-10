@@ -6,6 +6,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
 import type { Review, Comment } from "../types/review";
 import { SkeletonDetail, SkeletonCommentList } from "../components/Skeleton";
+import { StarRating } from "../components/StarRating";
 
 function ReviewDetail() {
   const { id } = useParams<{ id: string }>();
@@ -341,11 +342,6 @@ function ReviewDetail() {
     },
   });
 
-  // 평점을 별표로 표시하는 함수 (채워진 별만)
-  const renderStars = (rating: number) => {
-    return "⭐".repeat(rating);
-  };
-
   // 리뷰 수정 시작
   const handleStartEditReview = () => {
     if (review) {
@@ -496,7 +492,9 @@ function ReviewDetail() {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl mb-2">{renderStars(review.rating)}</div>
+              <div className="mb-2">
+                <StarRating value={review.rating} />
+              </div>
               <p className="text-lg font-semibold text-text-main">
                 {review.rating} / 5점
               </p>
@@ -536,28 +534,11 @@ function ReviewDetail() {
                   <label className="block text-sm font-bold text-text-main mb-2">
                     평점 *
                   </label>
-                  <div className="flex gap-1 items-center">
-                    {[1, 2, 3, 4, 5].map((rating) => (
-                      <button
-                        key={rating}
-                        type="button"
-                        onClick={() => setEditReviewRating(rating)}
-                        className="w-12 h-12 flex items-center justify-center text-4xl transition-all hover:scale-110 cursor-pointer"
-                        title={`${rating}점`}
-                      >
-                        {editReviewRating >= rating ? (
-                          <span className="text-yellow-400">⭐</span>
-                        ) : (
-                          <span className="text-text-muted">☆</span>
-                        )}
-                      </button>
-                    ))}
-                    {editReviewRating > 0 && (
-                      <span className="ml-4 text-lg font-semibold text-text-main">
-                        {editReviewRating}점
-                      </span>
-                    )}
-                  </div>
+                  <StarRating
+                    value={editReviewRating}
+                    onChange={setEditReviewRating}
+                    showScore
+                  />
                 </div>
 
                 {/* 내용 수정 */}

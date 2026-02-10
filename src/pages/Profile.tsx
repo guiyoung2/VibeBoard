@@ -6,6 +6,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
 import type { Review } from "../types/review";
 import { SkeletonReviewList } from "../components/Skeleton";
+import { StarRating } from "../components/StarRating";
 
 type ProfileSection = "settings" | "reviews";
 
@@ -148,8 +149,6 @@ function Profile() {
     },
     enabled: !!user?.id,
   });
-
-  const renderStars = (rating: number) => "⭐".repeat(rating);
 
   if (!user) {
     return (
@@ -358,7 +357,7 @@ function Profile() {
                               </div>
                             </div>
                             <div className="text-lg shrink-0">
-                              {renderStars(review.rating)}
+                              <StarRating value={review.rating} className="text-lg" />
                             </div>
                           </div>
                           <p className="text-text-main text-sm line-clamp-2">
