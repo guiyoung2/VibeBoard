@@ -1,5 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { useThemeStore } from "../stores/themeStore";
+import { Button } from "./Button";
 
 interface Props {
   children: ReactNode;
@@ -65,8 +65,6 @@ function ErrorFallback({
   errorInfo: ErrorInfo | null;
   onRetry: () => void;
 }) {
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
   const isDev = import.meta.env.DEV;
 
   return (
@@ -108,17 +106,9 @@ function ErrorFallback({
             )}
           </div>
         )}
-        <button
-          type="button"
-          onClick={onRetry}
-          className={`px-6 py-3 rounded-lg font-medium text-white transition-colors ${
-            isDark
-              ? "bg-accent hover:bg-accent-hover"
-              : "bg-primary hover:bg-primary-soft"
-          }`}
-        >
+        <Button type="button" variant="primary" size="lg" onClick={onRetry}>
           새로고침
-        </button>
+        </Button>
       </div>
     </div>
   );

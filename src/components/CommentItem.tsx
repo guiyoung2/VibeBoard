@@ -1,5 +1,5 @@
 import type { Comment } from "../types/review";
-import { useThemeStore } from "../stores/themeStore";
+import { Button } from "./Button";
 
 interface CommentItemProps {
   comment: Comment;
@@ -30,9 +30,6 @@ export function CommentItem({
   isUpdatePending,
   isDeletePending,
 }: CommentItemProps) {
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
-
   return (
     <div className="p-4 bg-bg rounded-lg border border-border">
       <div className="flex items-start gap-3 mb-3">
@@ -98,20 +95,22 @@ export function CommentItem({
                 </div>
               )}
               <div className="flex gap-2 justify-end">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="xs"
                   onClick={onCancelEdit}
-                  className="px-3 py-1 text-xs border border-border rounded text-text-main hover:bg-bg-muted transition-colors"
                 >
                   취소
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  variant="primary"
+                  size="xs"
                   disabled={isUpdatePending || !editContent.trim()}
-                  className={`px-3 py-1 text-xs ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {isUpdatePending ? "수정 중..." : "수정 완료"}
-                </button>
+                </Button>
               </div>
             </form>
           ) : (

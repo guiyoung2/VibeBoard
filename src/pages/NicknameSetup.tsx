@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
-import { useThemeStore } from "../stores/themeStore";
+import { Button } from "../components/Button";
 
 function NicknameSetup() {
   const navigate = useNavigate();
@@ -11,8 +11,6 @@ function NicknameSetup() {
   const [error, setError] = useState<string | null>(null);
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
 
   // 닉네임 검증 (한글 기준 6글자 이하)
   const validateNickname = (nickname: string): boolean => {
@@ -85,12 +83,9 @@ function NicknameSetup() {
         <div className="max-w-md w-full mx-auto px-4">
           <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border text-center">
             <p className="text-text-main mb-4">로그인이 필요합니다.</p>
-            <button
-              onClick={() => navigate("/auth/login")}
-              className={`${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white px-6 py-2 rounded-lg transition-colors`}
-            >
+            <Button variant="primary" size="md" onClick={() => navigate("/auth/login")}>
               로그인하기
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -144,13 +139,15 @@ function NicknameSetup() {
               </div>
             )}
 
-            <button
+            <Button
               type="submit"
+              variant="primary"
+              size="lg"
+              fullWidth
               disabled={loading || !nickname.trim()}
-              className={`w-full ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {loading ? "설정 중..." : "닉네임 설정하기"}
-            </button>
+            </Button>
           </form>
         </div>
       </div>

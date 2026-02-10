@@ -1,6 +1,6 @@
 import type { Review } from "../types/review";
+import { Button } from "./Button";
 import { StarRating } from "./StarRating";
-import { useThemeStore } from "../stores/themeStore";
 
 interface ReviewContentProps {
   review: Review;
@@ -35,9 +35,6 @@ export function ReviewContent({
   isDeletePending,
   updateError,
 }: ReviewContentProps) {
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
-
   return (
     <div>
       <h2 className="text-xl font-semibold text-text-main mb-4">리뷰 내용</h2>
@@ -78,22 +75,19 @@ export function ReviewContent({
             </p>
           )}
           <div className="flex gap-2 justify-end">
-            <button
-              type="button"
-              onClick={onCancelEdit}
-              className="px-6 py-2 border border-border rounded-lg text-text-main hover:bg-bg-muted transition-colors"
-            >
+            <Button type="button" variant="outline" size="md" onClick={onCancelEdit}>
               취소
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              variant="primary"
+              size="md"
               disabled={
                 isUpdatePending || !editContent.trim() || editRating === 0
               }
-              className={`px-6 py-2 ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {isUpdatePending ? "수정 중..." : "수정 완료"}
-            </button>
+            </Button>
           </div>
         </form>
       ) : (
@@ -103,19 +97,17 @@ export function ReviewContent({
           </p>
           {currentUserId && review.user_id === currentUserId && (
             <div className="flex gap-2 justify-end mt-4">
-              <button
-                onClick={onStartEdit}
-                className="px-4 py-2 text-sm text-text-sub hover:text-text-main transition-colors border border-border rounded-lg hover:bg-bg-muted"
-              >
+              <Button variant="outline" size="sm" onClick={onStartEdit}>
                 수정
-              </button>
-              <button
-                onClick={onDelete}
-                disabled={isDeletePending}
-                className="px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors disabled:opacity-50 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
-              >
-                {isDeletePending ? "삭제 중..." : "삭제"}
-              </button>
+              </Button>
+              <Button
+                    variant="danger"
+                    size="sm"
+                    disabled={isDeletePending}
+                    onClick={onDelete}
+                  >
+                    {isDeletePending ? "삭제 중..." : "삭제"}
+                  </Button>
             </div>
           )}
         </div>

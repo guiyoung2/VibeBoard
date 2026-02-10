@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 import { useThemeStore } from "../stores/themeStore";
 import type { Review } from "../types/review";
+import { Button } from "../components/Button";
 import { ErrorMessageWithRetry } from "../components/ErrorMessageWithRetry";
 import { SkeletonReviewList } from "../components/Skeleton";
 import { StarRating } from "../components/StarRating";
@@ -157,12 +158,13 @@ function Profile() {
         <div className="max-w-md w-full mx-auto px-4">
           <div className="bg-bg-card p-8 rounded-xl shadow-card border border-border text-center">
             <p className="text-text-main mb-4">로그인이 필요합니다.</p>
-            <button
+            <Button
+              variant="primary"
+              size="md"
               onClick={() => navigate("/auth/login")}
-              className={`${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white px-6 py-2 rounded-lg transition-colors`}
             >
               로그인하기
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -253,17 +255,19 @@ function Profile() {
                       닉네임이 성공적으로 변경되었습니다.
                     </div>
                   )}
-                  <button
+                  <Button
                     type="submit"
+                    variant="primary"
+                    size="lg"
+                    fullWidth
                     disabled={
                       loading ||
                       !nicknameInput.trim() ||
                       nicknameInput.trim() === nickname
                     }
-                    className={`w-full ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {loading ? "수정 중..." : "닉네임 수정하기"}
-                  </button>
+                  </Button>
                 </form>
                 <div className="mt-8 pt-8 border-t border-border">
                   <h3 className="text-lg font-semibold text-text-main mb-4">

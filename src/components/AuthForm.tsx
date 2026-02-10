@@ -1,4 +1,5 @@
 import { useThemeStore } from "../stores/themeStore";
+import { Button } from "./Button";
 
 export interface AuthFieldErrors {
   email?: string;
@@ -159,13 +160,15 @@ export function AuthForm({
           </div>
         )}
 
-        <button
+        <Button
           type="submit"
+          variant="primary"
+          size="lg"
+          fullWidth
           disabled={loading}
-          className={`w-full ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white py-3 px-4 rounded-xl transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {loading ? "처리 중..." : isLogin ? "로그인" : "회원가입"}
-        </button>
+        </Button>
 
         {Object.keys(fieldErrors).length > 0 && (
           <div className="mt-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">

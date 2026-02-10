@@ -1,9 +1,9 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
-import { useThemeStore } from "../stores/themeStore";
 import type { BoardGame } from "../types/boardgame";
 import GameCard from "../components/GameCard";
+import { Button } from "../components/Button";
 import { ErrorMessageWithRetry } from "../components/ErrorMessageWithRetry";
 import { SkeletonGameGrid } from "../components/Skeleton";
 
@@ -24,8 +24,6 @@ function Games() {
   const [prevDisplayCount, setPrevDisplayCount] = useState(0); // 이전 표시 개수 (애니메이션용)
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const ITEMS_PER_PAGE = 3; // 한 번에 추가로 로드할 개수
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
 
   // Supabase에서 보드게임 데이터 가져오기
   const {
@@ -194,12 +192,9 @@ function Games() {
               placeholder="보드게임 이름으로 검색..."
               className="flex-1 px-4 py-2 border border-border rounded-lg bg-bg-card text-text-main placeholder:text-text-sub focus:outline-none focus:ring-2 focus:ring-primary"
             />
-            <button
-              type="submit"
-              className={`px-6 py-2 ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"} text-white rounded-lg transition-colors`}
-            >
+            <Button type="submit" variant="primary" size="md">
               검색
-            </button>
+            </Button>
           </form>
         </div>
 

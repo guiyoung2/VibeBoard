@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useThemeStore } from "../stores/themeStore";
+import { Button } from "../components/Button";
 import {
   searchKeyword,
   searchKeywordOnly,
@@ -359,29 +360,27 @@ function Cafes() {
               placeholder="예: 중앙역 4호선, 강남역, 홍대입구"
               className="flex-1 min-w-0 px-4 py-3 border border-border rounded-xl bg-bg-card text-text-main placeholder:text-text-sub focus:outline-none focus:ring-2 focus:ring-primary"
             />
-            <button
+            <Button
               type="button"
-              onClick={handleSearchByQuery}
+              variant="primary"
+              size="lg"
               disabled={loading}
-              className={`shrink-0 px-6 py-3 rounded-xl font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                isDark
-                  ? "bg-accent hover:bg-accent-hover"
-                  : "bg-primary hover:bg-primary-soft"
-              }`}
+              className="shrink-0"
+              onClick={handleSearchByQuery}
             >
               {loading ? "검색 중..." : "검색어로 검색"}
-            </button>
+            </Button>
           </div>
-          <button
+          <Button
             type="button"
-            onClick={handleSearchByCurrentLocation}
+            variant="outline"
+            size="lg"
             disabled={loading}
-            className={`shrink-0 px-6 py-3 rounded-xl font-medium border border-border text-text-main hover:bg-bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-              isDark ? "border-border" : ""
-            }`}
+            className="shrink-0"
+            onClick={handleSearchByCurrentLocation}
           >
             현재 위치에서 검색
-          </button>
+          </Button>
         </div>
 
         {error && (

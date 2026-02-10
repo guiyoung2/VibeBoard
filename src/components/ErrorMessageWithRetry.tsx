@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useThemeStore } from "../stores/themeStore";
+import { Button } from "./Button";
 
 interface ErrorMessageWithRetryProps {
   /** 메인 안내 문구 */
@@ -27,14 +27,6 @@ export function ErrorMessageWithRetry({
   className = "",
   size = "default",
 }: ErrorMessageWithRetryProps) {
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
-
-  const buttonClass = size === "sm"
-    ? "px-4 py-2 rounded-lg text-white text-sm font-medium"
-    : "px-4 py-2 rounded-lg text-white font-medium";
-  const primaryClass = `${buttonClass} ${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary-soft"}`;
-
   return (
     <div
       className={`rounded-xl p-6 border border-border bg-bg-card text-center ${className}`}
@@ -46,13 +38,14 @@ export function ErrorMessageWithRetry({
       )}
       <div className="flex flex-wrap gap-3 justify-center">
         {onRetry && (
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size={size === "sm" ? "sm" : "md"}
             onClick={onRetry}
-            className={primaryClass}
           >
             {retryLabel}
-          </button>
+          </Button>
         )}
         {secondaryLink && (
           <Link

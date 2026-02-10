@@ -1,4 +1,4 @@
-import { useThemeStore } from "../stores/themeStore";
+import { Button } from "./Button";
 
 interface CommentFormProps {
   value: string;
@@ -21,9 +21,6 @@ export function CommentForm({
   placeholder = "댓글을 작성해주세요...",
   rows = 4,
 }: CommentFormProps) {
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
-
   return (
     <form onSubmit={onSubmit} className="mb-8">
       <textarea
@@ -40,13 +37,14 @@ export function CommentForm({
         </p>
       )}
       <div className="flex justify-end">
-        <button
+        <Button
           type="submit"
+          variant="primary"
+          size="md"
           disabled={isPending || !value.trim()}
-          className={`${isDark ? "bg-accent hover:bg-accent-hover" : "bg-primary hover:bg-primary/90"} text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {isPending ? "작성 중..." : submitLabel}
-        </button>
+        </Button>
       </div>
     </form>
   );

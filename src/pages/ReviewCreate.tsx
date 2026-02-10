@@ -3,8 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
-import { useThemeStore } from "../stores/themeStore";
 import { allowReviewCreate } from "../lib/featureFlags";
+import { Button } from "../components/Button";
 import { StarRating } from "../components/StarRating";
 import type { BoardGame } from "../types/boardgame";
 import type { ReviewFormData } from "../types/review";
@@ -13,9 +13,6 @@ function ReviewCreate() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  const { theme } = useThemeStore();
-  const isDark = theme === "dark";
-
   const [formData, setFormData] = useState<ReviewFormData>({
     boardgame_id: "",
     rating: 0,
@@ -119,16 +116,9 @@ function ReviewCreate() {
             <p className="text-text-main mb-4">
               리뷰를 작성하려면 로그인이 필요합니다.
             </p>
-            <button
-              onClick={() => navigate("/auth/login")}
-              className={`${
-                isDark
-                  ? "bg-accent hover:bg-accent-hover"
-                  : "bg-primary hover:bg-primary-soft"
-              } text-white px-6 py-2 rounded-lg transition-colors`}
-            >
+            <Button variant="primary" size="md" onClick={() => navigate("/auth/login")}>
               로그인하기
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -242,24 +232,17 @@ function ReviewCreate() {
 
           {/* 버튼 */}
           <div className="flex gap-4 justify-end">
-            <button
-              type="button"
-              onClick={() => navigate("/reviews")}
-              className="px-6 py-2 border border-border rounded-lg text-text-main hover:bg-bg-muted transition-colors"
-            >
+            <Button type="button" variant="outline" size="md" onClick={() => navigate("/reviews")}>
               취소
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              variant="primary"
+              size="md"
               disabled={createReviewMutation.isPending}
-              className={`px-6 py-2 ${
-                isDark
-                  ? "bg-accent hover:bg-accent-hover"
-                  : "bg-primary hover:bg-primary-soft"
-              } text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {createReviewMutation.isPending ? "작성 중..." : "리뷰 작성"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
