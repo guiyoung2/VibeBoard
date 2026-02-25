@@ -41,13 +41,15 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
       .join(", ");
   };
 
-  // name 값으로 보드게임 가져오기
+  // name 값으로 보드게임 가져오기 (gameNames 순서대로 정렬해 첫 슬라이드를 일정하게 유지)
   const {
     data: featuredGames,
     isLoading,
     error,
   } = useQuery({
     queryKey: ["popular-games", gameNames],
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("boardgames")
@@ -57,9 +59,25 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
         .in("name", gameNames);
 
       if (error) throw error;
-      return (data as BoardGame[]) || [];
+      const rows = (data as BoardGame[]) || [];
+      return gameNames
+        .map((n) => rows.find((r) => r.name === n))
+        .filter(Boolean) as BoardGame[];
     },
   });
+
+  // 첫 슬라이드 이미지 URL이 확정되는 즉시 preload 힌트를 주입해 다음 탐색 시 LCP를 앞당긴다.
+  useEffect(() => {
+    if (!featuredGames?.[0]?.image_url) return;
+    const url = featuredGames[0].image_url;
+    if (document.querySelector(`link[rel="preload"][href="${url}"]`)) return;
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.href = url;
+    link.setAttribute("fetchpriority", "high");
+    document.head.appendChild(link);
+  }, [featuredGames]);
 
   const nextSlide = () => {
     if (featuredGames) {
