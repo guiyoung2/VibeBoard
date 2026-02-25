@@ -14,15 +14,36 @@ const queryClient = new QueryClient({
       retry: 2,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
       refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
     },
+  },
+});
+
+// 앱 시작 시 다크 모드 초기화 (렌더 전 먼저 처리)
+useThemeStore.getState().initTheme();
+
+// 홈 히어로 데이터를 React 렌더 전에 미리 요청해 LCP 체인을 단축한다.
+const FEATURED_GAME_NAMES = ["할리갈리", "루미큐브", "스컬킹", "부루마블"];
+queryClient.prefetchQuery({
+  queryKey: ["popular-games", FEATURED_GAME_NAMES],
+  staleTime: 5 * 60 * 1000,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("boardgames")
+      .select(
+        "id, name, description, category, min_players, max_players, play_time, image_url",
+      )
+      .in("name", FEATURED_GAME_NAMES);
+    if (error) throw error;
+    const rows = (data as { name: string }[]) || [];
+    return FEATURED_GAME_NAMES
+      .map((n) => rows.find((r) => r.name === n))
+      .filter(Boolean);
   },
 });
 
 // 앱 시작 시 세션 확인
 useAuthStore.getState().checkSession();
-
-// 앱 시작 시 다크 모드 초기화
-useThemeStore.getState().initTheme();
 
 // Supabase 인증 상태 변경 감지
 supabase.auth.onAuthStateChange((_event, session) => {
