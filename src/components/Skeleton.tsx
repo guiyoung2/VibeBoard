@@ -108,8 +108,10 @@ export function SkeletonDetail() {
 /** 히어로 슬라이더 스켈레톤 */
 export function SkeletonHero() {
   return (
-    <div className="relative w-full aspect-[21/9] max-h-[400px] rounded-xl overflow-hidden bg-bg-card border border-border">
-      <Skeleton className="absolute inset-0 rounded-xl" />
+    <div className="relative bg-bg-card rounded-lg shadow-card border border-border overflow-hidden">
+      <div className="relative min-h-[600px] md:h-[500px]">
+        <Skeleton className="absolute inset-0 rounded-none" />
+      </div>
       <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-2">
         <Skeleton className="h-2 w-8 rounded-full" />
         <Skeleton className="h-2 w-8 rounded-full" />

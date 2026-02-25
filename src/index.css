@@ -3,15 +3,17 @@
 /* Noonnu 폰트 정의 */
 @font-face {
   font-family: "Noonnu";
-  src: url("/fonts/NoonnuBasicGothicRegular.ttf") format("truetype");
+  src: url("/fonts/NoonnuBasicGothicRegular.woff") format("woff");
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 @font-face {
   font-family: "Hakgyoansim";
-  src: url("/fonts/Hakgyoansim_SaekyeonpilR.ttf") format("truetype");
+  src: url("/fonts/Hakgyoansim_SaekyeonpilR.woff") format("woff");
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 
 /* Tailwind CSS v4에서 테마 설정 */

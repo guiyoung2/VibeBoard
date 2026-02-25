@@ -181,6 +181,12 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
                     src={game.image_url}
                     alt={game.name}
                     className="w-full h-full object-contain"
+                    width={1200}
+                    height={900}
+                    loading={index === currentIndex ? "eager" : "lazy"}
+                    fetchPriority={index === currentIndex ? "high" : "auto"}
+                    decoding="async"
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 ) : (
                   <div className="w-full h-full bg-bg-muted"></div>

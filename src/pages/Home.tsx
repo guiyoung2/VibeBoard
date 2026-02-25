@@ -30,6 +30,10 @@ function Home() {
                       src="/near_map.png"
                       alt="주변 매장 지도"
                       className="w-48 md:w-64 h-auto object-contain"
+                      width={512}
+                      height={512}
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                 </div>
