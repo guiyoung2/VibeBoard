@@ -17,6 +17,33 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
   const isDark = useIsDark();
 
+  const getOptimizedImageUrl = (imageUrl: string, width: number) => {
+    // Supabase Storage URL에 한해 render/image 엔드포인트로 변환해 리사이즈/포맷 최적화를 적용한다.
+    if (!imageUrl.includes("supabase.co/storage/v1/object/public/")) {
+      return imageUrl;
+    }
+    try {
+      const transformedUrl = imageUrl.replace(
+        "/storage/v1/object/public/",
+        "/storage/v1/render/image/public/",
+      );
+      const url = new URL(transformedUrl);
+      url.searchParams.set("width", String(width));
+      url.searchParams.set("quality", "60");
+      url.searchParams.set("format", "webp");
+      return url.toString();
+    } catch {
+      return imageUrl;
+    }
+  };
+
+  const getOptimizedImageSrcSet = (imageUrl: string) => {
+    const widths = [480, 768, 1200];
+    return widths
+      .map((width) => `${getOptimizedImageUrl(imageUrl, width)} ${width}w`)
+      .join(", ");
+  };
+
   // name 값으로 보드게임 가져오기
   const {
     data: featuredGames,
@@ -27,7 +54,9 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("boardgames")
-        .select("*")
+        .select(
+          "id, name, description, category, min_players, max_players, play_time, image_url",
+        )
         .in("name", gameNames);
 
       if (error) throw error;
@@ -173,12 +202,25 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
             }`}
             style={{ pointerEvents: isDragging ? "none" : "auto" }}
           >
+            {/*
+              초기 네트워크 페이로드를 줄이기 위해 현재/다음 슬라이드 중심으로만 이미지를 로드한다.
+            */}
+            {(() => {
+              const shouldLoadImage =
+                index === currentIndex ||
+                (featuredGames.length > 1 &&
+                  index === (currentIndex + 1) % featuredGames.length);
+              return (
             <div className="grid grid-cols-1 md:grid-cols-2 h-full">
               {/* 이미지 영역 */}
               <div className="relative h-64 md:h-full bg-bg-muted flex items-center justify-center p-4 overflow-hidden">
-                {game.image_url ? (
+                {game.image_url && shouldLoadImage ? (
                   <img
-                    src={game.image_url}
+                    src={getOptimizedImageUrl(
+                      game.image_url,
+                      index === currentIndex ? 768 : 480,
+                    )}
+                    srcSet={getOptimizedImageSrcSet(game.image_url)}
                     alt={game.name}
                     className="w-full h-full object-contain"
                     width={1200}
@@ -186,7 +228,7 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
                     loading={index === currentIndex ? "eager" : "lazy"}
                     fetchPriority={index === currentIndex ? "high" : "auto"}
                     decoding="async"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 60vw, 50vw"
                   />
                 ) : (
                   <div className="w-full h-full bg-bg-muted"></div>
@@ -263,6 +305,8 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
                 </div>
               </div>
             </div>
+              );
+            })()}
           </div>
         ))}
       </div>

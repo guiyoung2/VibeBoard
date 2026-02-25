@@ -1,5 +1,7 @@
+import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import HeroSlider from "../components/HeroSlider";
+
+const HeroSlider = lazy(() => import("../components/HeroSlider"));
 
 function Home() {
   // 인기 보드게임 이름 목록 (Supabase의 name 값과 정확히 일치해야 함)
@@ -13,7 +15,15 @@ function Home() {
           <h2 className="text-2xl font-bold text-primary dark:text-text-main mb-6">
             🔥 인기 있는 보드게임
           </h2>
-          <HeroSlider gameNames={featuredGameNames} />
+          <Suspense
+            fallback={
+              <div className="relative bg-bg-card rounded-lg shadow-card border border-border overflow-hidden">
+                <div className="min-h-[600px] md:h-[500px] bg-bg-muted" />
+              </div>
+            }
+          >
+            <HeroSlider gameNames={featuredGameNames} />
+          </Suspense>
         </section>
 
         {/* 주변 매장 찾기 섹션 */}
@@ -27,13 +37,14 @@ function Home() {
                 <div className="flex-shrink-0 relative z-10">
                   <div className="p-4 rounded-lg shadow-md">
                     <img
-                      src="/near_map.png"
+                      src="/near_map.webp"
                       alt="주변 매장 지도"
                       className="w-48 md:w-64 h-auto object-contain"
                       width={512}
                       height={512}
                       loading="lazy"
                       decoding="async"
+                      fetchPriority="low"
                     />
                   </div>
                 </div>
