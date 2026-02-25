@@ -3,14 +3,14 @@
 /* Noonnu 폰트 정의 */
 @font-face {
   font-family: "Noonnu";
-  src: url("/fonts/NoonnuBasicGothicRegular.woff") format("woff");
+  src: url("/fonts/NoonnuBasicGothicRegular.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Hakgyoansim";
-  src: url("/fonts/Hakgyoansim_SaekyeonpilR.woff") format("woff");
+  font-family: "11street";
+  src: url("/fonts/11StreetGothic-Kor.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -20,7 +20,7 @@
 @theme {
   /* 폰트 */
   --font-noonnu: "Noonnu", sans-serif;
-  --font-hakgyoansim: "Hakgyoansim", sans-serif;
+  --font-11street: "11street", sans-serif;
 
   /* 배경 컬러 (라이트 모드) */
   --color-bg: #f7f7f5;

@@ -35,7 +35,7 @@ function Layout({ children }: LayoutProps) {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <div className="min-h-screen bg-bg font-hakgyoansim">
+    <div className="min-h-screen bg-bg font-11street">
       <NetworkStatus />
       {/* Header */}
       <header className="bg-bg-card shadow-card border-b border-border sticky top-0 z-40">

@@ -1,7 +1,5 @@
-import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-
-const HeroSlider = lazy(() => import("../components/HeroSlider"));
+import HeroSlider from "../components/HeroSlider";
 
 function Home() {
   // 인기 보드게임 이름 목록 (Supabase의 name 값과 정확히 일치해야 함)
@@ -15,15 +13,7 @@ function Home() {
           <h2 className="text-2xl font-bold text-primary dark:text-text-main mb-6">
             🔥 인기 있는 보드게임
           </h2>
-          <Suspense
-            fallback={
-              <div className="relative bg-bg-card rounded-lg shadow-card border border-border overflow-hidden">
-                <div className="min-h-[600px] md:h-[500px] bg-bg-muted" />
-              </div>
-            }
-          >
-            <HeroSlider gameNames={featuredGameNames} />
-          </Suspense>
+          <HeroSlider gameNames={featuredGameNames} />
         </section>
 
         {/* 주변 매장 찾기 섹션 */}
