@@ -18,16 +18,13 @@ function HeroSlider({ gameNames }: HeroSliderProps) {
   const isDark = useIsDark();
 
   const getOptimizedImageUrl = (imageUrl: string, width: number) => {
-    // Supabase Storage URL에 한해 render/image 엔드포인트로 변환해 리사이즈/포맷 최적화를 적용한다.
-    if (!imageUrl.includes("supabase.co/storage/v1/object/public/")) {
+    // 기본은 원본 URL을 유지해 이미지 깨짐을 방지한다.
+    // 이미 render/image URL인 경우에만 안전하게 파라미터를 추가한다.
+    if (!imageUrl.includes("/storage/v1/render/image/public/")) {
       return imageUrl;
     }
     try {
-      const transformedUrl = imageUrl.replace(
-        "/storage/v1/object/public/",
-        "/storage/v1/render/image/public/",
-      );
-      const url = new URL(transformedUrl);
+      const url = new URL(imageUrl);
       url.searchParams.set("width", String(width));
       url.searchParams.set("quality", "60");
       url.searchParams.set("format", "webp");
