@@ -1,183 +1,90 @@
 # VibeBoard
 
-**보드게임 추천·후기·주변 매장 찾기**를 한 곳에서 할 수 있는 웹 서비스입니다.
+보드게임 추천, 리뷰 작성, 주변 보드게임 카페 검색을 한 곳에서 제공하는 웹 서비스입니다.
 
-- **배포**: [Vercel](https://vercel.com) (실제 동작은 배포 URL로 확인)
-- **백엔드/DB·인증**: Supabase
-- **지도/장소 검색**: 카카오 로컬 API · 카카오맵 JavaScript SDK
+## 1. 프로젝트 개요
 
----
+- 목적: 보드게임 탐색부터 후기 작성, 오프라인 매장 탐색까지 하나의 서비스 흐름으로 제공
+- 핵심 포인트: 인증/권한, 지도 API 연동, 서버 상태 관리, 운영 환경 제어
+- 개발 형태: 개인 프로젝트
 
-## 목차
+## 2. 링크
 
-- [주요 기능](#주요-기능)
-- [기술 스택](#기술-스택)
-- [라이브러리 및 사용 이유](#라이브러리-및-사용-이유)
-- [프로젝트 구조](#프로젝트-구조)
-- [로컬 실행 방법](#로컬-실행-방법)
-- [환경 변수](#환경-변수)
-- [배포](#배포)
-- [구현 상세](#구현-상세)
+- 배포: https://vibeboard-nine.vercel.app
+- 저장소: https://github.com/guiyoung2/VibeBoard
 
----
+## 3. 주요 기능
 
-## 주요 기능
+- 게임 목록/상세 조회 (`/games`, `/games/:id`)
+- 리뷰 목록/상세/작성 (`/reviews`, `/reviews/:id`, `/reviews/create`)
+- 현재 위치/검색어 기반 주변 보드게임 카페 검색 (`/cafes`)
+- Supabase Auth 기반 로그인(이메일, Google, GitHub) 및 프로필 관리
+- 다크 모드, 반응형 레이아웃, 로딩/에러/오프라인 상태 대응
 
-### 1. 게임 추천 (`/games`)
+## 4. 기술 스택
 
-- Supabase에 저장된 **보드게임 목록** 조회
-- 카드 형태로 게임명, 이미지, 카테고리·인원·플레이 시간 등 표시
-- **게임 상세** (`/games/:id`): 상세 정보, 관련 리뷰 목록
+- Frontend: React 19, TypeScript, Vite 7, React Router 7
+- State: TanStack Query 5, Zustand 5
+- Backend/BaaS: Supabase (PostgreSQL, Auth, RLS)
+- External API: 카카오 로컬 API, 카카오맵 JavaScript SDK
+- Styling: Tailwind CSS 4
+- Deploy/Automation: Vercel, GitHub Actions
 
-### 2. 게임 후기 (`/reviews`)
+## 5. 기술 선택과 구현 포인트
 
-- **전체 리뷰 목록** (보드게임별, 평점별 필터·정렬)
-- **리뷰 상세** (`/reviews/:id`): 작성자, 평점, 내용, 수정/삭제(본인만)
-- **리뷰 작성** (`/reviews/create`): 로그인 후 보드게임 선택·평점·내용 작성
-  - 배포 환경에서는 **등록 비활성화** 가능 (환경 변수로 제어, 제출 시 경고 문구만 표시)
+### React Query + Zustand 역할 분리
 
-### 3. 주변 매장 찾기 (`/cafes`)
+- 서버 상태(게임/리뷰 데이터)와 클라이언트 상태(인증/테마)를 분리해 관리 복잡도를 낮췄습니다.
+- `invalidateQueries`를 활용해 리뷰 작성/수정 이후 목록 동기화를 일관되게 처리했습니다.
 
-- **현재 위치 기준** 또는 **검색어(역·동 등) 기준**으로 주변 **보드게임 카페** 검색
-- 카카오 로컬 API로 장소 검색 → 카카오맵에 마커(이름 라벨) 표시
-- **페이지네이션**(1·2·3페이지, 최대 45건): 선택한 페이지만 지도·목록에 표시
-- 결과 목록에서 페이지 전환 시 **목록 영역 스크롤 맨 위**로 이동
+### Supabase 기반 인증/권한 제어
 
-### 4. 인증·프로필
+- 별도 백엔드 서버 없이 Auth + DB + RLS를 구성해, 서비스 기능 구현과 권한 제어를 함께 처리했습니다.
+- 세션 저장소를 `sessionStorage`로 두어 탭 단위 로그인 정책을 명확히 유지했습니다.
 
-- **Supabase Auth**: 이메일·비밀번호, Google·GitHub 소셜 로그인
-- **닉네임 설정** (최초 로그인 시 또는 프로필에서)
-- **프로필** (`/profile`): 닉네임 수정, **내가 작성한 리뷰 목록** (설정 / 작성한 리뷰 탭)
-- 세션 저장: **sessionStorage** (탭/창 닫으면 로그아웃)
+### 지도 기능 최적화
 
-### 5. 공통 UX
+- 카카오 로컬 API로 검색 결과를 가져오고, 카카오맵 SDK에서 커스텀 오버레이로 지도 시각화를 구현했습니다.
+- 위치 기반/검색어 기반 흐름을 분리해 사용자 진입 경로를 명확히 했습니다.
 
-- **다크 모드**: localStorage에 저장, 전역 토글
-- **반응형 레이아웃**: 모바일 햄버거 메뉴, 데스크톱 네비게이션
-- **에러·로딩**: 전역 Error Boundary, 스켈레톤 UI, 네트워크 끊김 배너, 쿼리 실패 시 재시도 버튼
-- **리뷰 작성 제어**: 환경 변수 `VITE_ALLOW_REVIEW_CREATE`로 로컬/배포에서 등록 허용 여부 분리
+### 운영 환경 제어
 
----
+- `VITE_ALLOW_REVIEW_CREATE`로 리뷰 등록 허용 여부를 환경별로 제어했습니다.
+- Supabase 무료 플랜 비활성화 방지를 위해 주기 호출 워크플로를 구성했습니다.
 
-## 기술 스택
+## 6. 성능 개선
 
-| 구분                | 기술                                     | 용도                                              |
-| ------------------- | ---------------------------------------- | ------------------------------------------------- |
-| **런타임·빌드**     | Node.js, Vite 7                          | 개발 서버·프로덕션 빌드                           |
-| **언어**            | TypeScript                               | 타입 안정성·유지보수                              |
-| **UI**              | React 19                                 | 컴포넌트·렌더링                                   |
-| **스타일**          | Tailwind CSS 4                           | 유틸리티 기반 스타일·다크 모드                    |
-| **라우팅**          | React Router 7                           | SPA 라우팅                                        |
-| **서버 상태**       | TanStack Query (React Query) 5           | API·Supabase 데이터 페칭·캐시·재시도              |
-| **클라이언트 상태** | Zustand                                  | 인증·테마·UI 상태                                 |
-| **백엔드·DB·인증**  | Supabase                                 | PostgreSQL, Auth(이메일·소셜), Row Level Security |
-| **지도·장소**       | 카카오 로컬 API, 카카오맵 JavaScript SDK | 장소 검색·지도 표시                               |
-| **배포**            | Vercel                                   | 정적·SPA 배포                                     |
+- LCP: 44.3s -> 6.0s
+- CLS: 0.362 -> 0
+- Payload: 8.4MB -> 968KB
 
----
+개선 방법:
 
-## 라이브러리 및 사용 이유
+- LCP 이미지 preload 적용
+- 스켈레톤/실제 레이아웃 높이 정합성 보정
+- 폰트/이미지 최적화 및 번들 청크 분리
 
-- **Vite**
+## 7. 프로젝트 구조
 
-  - 빠른 HMR, ESM 기반, `VITE_` 환경 변수로 클라이언트 설정 분리
-  - CRA 대비 빌드·개발 경험을 위해 선택
-
-- **React Query (TanStack Query)**
-
-  - Supabase/API 데이터를 **캐시·백그라운드 갱신·로딩·에러** 한 곳에서 처리
-  - `invalidateQueries`로 리뷰 작성 후 목록 갱신, 재시도·만료 시간 설정으로 네트워크 오류 대응
-
-- **Zustand**
-
-  - 인증(user, session, nickname)·테마(light/dark) 등 **전역 클라이언트 상태**를 가볍게 관리
-  - 보일러플레이트 적고, 훅 형태로 사용하기 쉬워 선택
-
-- **Tailwind CSS**
-
-  - 유틸리티 클래스로 **반응형·다크 모드**를 일관되게 적용
-  - `index.css`에서 `@theme`로 primary/accent 등 커스텀 색상 정의
-
-- **Supabase**
-
-  - **Auth**(이메일·Google·GitHub), **PostgreSQL**(boardgames, reviews, profiles), **RLS**로 테이블 단위 권한 제어
-  - 백엔드 서버 없이 BaaS로 빠르게 구현하기 위해 사용
-
-- **카카오 로컬 API · 카카오맵**
-  - **한국 지역** 장소 검색·지도 표시에 적합
-  - 로컬 API로 키워드·좌표 기반 검색, JavaScript SDK로 지도·커스텀 오버레이(마커 라벨) 구현
-
----
-
-## 프로젝트 구조
-
-```
+```text
 src/
-├── components/       # 공통 UI
-│   ├── ErrorBoundary.tsx   # 전역 에러 처리
-│   ├── GameCard.tsx
-│   ├── HeroSlider.tsx      # 홈 인기 게임 슬라이더
-│   ├── Layout.tsx          # 헤더·네비·다크모드·모바일 메뉴
-│   ├── NetworkStatus.tsx   # 오프라인 배너
-│   └── Skeleton.tsx       # 로딩 스켈레톤
-├── lib/              # 외부 연동·설정
-│   ├── featureFlags.ts    # VITE_ALLOW_REVIEW_CREATE 등
-│   ├── kakao.ts           # 카카오 로컬 API 호출
-│   └── supabase.ts        # Supabase 클라이언트
-├── pages/            # 라우트별 페이지
-│   ├── Home.tsx
-│   ├── Games.tsx, GameDetail.tsx
-│   ├── Reviews.tsx, ReviewDetail.tsx, ReviewCreate.tsx
-│   ├── Cafes.tsx          # 주변 매장 지도
-│   ├── Login.tsx, AuthCallback.tsx, NicknameSetup.tsx
-│   └── Profile.tsx
-├── stores/
-│   ├── authStore.ts       # 인증·닉네임
-│   └── themeStore.ts      # 다크 모드 (localStorage)
-├── types/             # TypeScript 타입
+├── components/   # 공통 UI (ErrorBoundary, Layout, NetworkStatus, Skeleton 등)
+├── lib/          # 외부 연동/설정 (supabase, kakao, featureFlags)
+├── pages/        # 라우트 페이지 (Home, Games, Reviews, Cafes, Auth, Profile)
+├── stores/       # Zustand 스토어 (auth, theme)
+├── types/        # 타입 정의
 ├── App.tsx
 └── main.tsx
 ```
 
----
+## 8. 실행 방법
 
-## 배포
+```bash
+npm install
+npm run dev
+```
 
-- **Supabase 무료 플랜**: 7일 비활성 시 프로젝트 일시정지 가능 → `.github/workflows/keep-supabase-active.yml`로 주기적 호출(예: 5일마다)해 잠금 방지
+## 9. 관련 문서
 
----
-
-## 구현 상세
-
-### 인증
-
-- Supabase Auth 사용, **sessionStorage**에 세션 저장 (탭 닫으면 로그아웃)
-- `authStore`(Zustand)에서 `user`, `session`, `nickname` 관리, `getSession` / `onAuthStateChange`로 동기화
-- 로그인 후 닉네임 없으면 `/auth/setup-nickname`으로 유도
-
-### 리뷰 작성 제어
-
-- `featureFlags.ts`에서 `VITE_ALLOW_REVIEW_CREATE === "true"`일 때만 **실제 등록** 허용
-- 배포에서 `false` 또는 미설정 시: 리뷰 작성 페이지·버튼은 보이지만, **제출 시** Supabase insert 없이 **경고 문구만** 표시
-
-### 주변 매장 (카카오)
-
-- **현재 위치**: `navigator.geolocation` → 좌표로 카카오 로컬 API 키워드 검색(보드게임카페, 반경 5km)
-- **검색어**: 로컬 API로 검색어 좌표 1건 조회 후, 그 좌표 기준으로 동일 키워드 검색
-- **페이지네이션**: API `page` 파라미터로 1·2·3페이지 요청, **선택한 페이지만** 지도·목록에 표시 (최대 45건)
-- 지도는 카카오맵 JavaScript SDK, 마커는 **커스텀 오버레이**(이름 라벨)로 표시
-
-### 에러·로딩
-
-- **ErrorBoundary**: 렌더 단계 에러 시 fallback UI + 새로고침 버튼
-- **NetworkStatus**: `navigator.onLine` 감지, 오프라인 시 상단 배너 + 재연결 시 쿼리 무효화
-- **React Query**: 로딩 시 스켈레톤, 에러 시 안내 문구 + 재시도 버튼, `retry`/`retryDelay` 설정
-
----
-
-## 문서
-
-- `docs/에러_로딩_네트워크_기능_가이드.md`: 에러/로딩/네트워크 기능 설명
-- `docs/Supabase_KeepAlive_설정.md`: GitHub Actions로 Supabase 무료 플랜 잠금 방지
-
----
+- `docs/에러_로딩_네트워크_기능_가이드.md`
+- `docs/Supabase_KeepAlive_설정.md`
