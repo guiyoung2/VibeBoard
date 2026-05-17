@@ -3,6 +3,8 @@
 > **보드게임 추천 · 후기 · 주변 카페 검색**을 한 곳에서 제공하는 위치 기반 웹 서비스.
 > Supabase 인증·권한 제어와 카카오 로컬 API·카카오맵 SDK를 활용했고, **Lighthouse 측정을 기반으로 한 성능 개선**을 직접 진행한 프로젝트입니다.
 
+![CI](https://github.com/guiyoung2/VibeBoard/actions/workflows/ci.yml/badge.svg)
+
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite)](https://vitejs.dev/)
