@@ -103,3 +103,79 @@
 ### 4-4. Lighthouse
 
 - **미측정** — `measure` phase의 Lighthouse step에서 측정 예정
+
+---
+
+## 5. 측정 결과 (after)
+
+> 측정일: 2026-05-17 · 브랜치: `harness/refactor-cycle` · 리팩토링·테스트 도입 후
+
+### 5-1. before / after 비교표
+
+| 항목 | before | after | 변화 |
+|------|--------|-------|------|
+| **dist 총합 (raw)** | ~560 kB | ~561 kB | 거의 동일 (+visualizer 플러그인 추가, 번들 소스 변경 없음) |
+| **dist 총합 (gzip)** | ~170 kB | ~170 kB | 동일 |
+| **앱 메인 청크 (index-*.js)** | 206.42 kB raw / 65.21 kB gzip | 206.42 kB raw / 65.21 kB gzip | 동일 |
+| **vendor-supabase** | 168.68 kB raw / 43.97 kB gzip | 168.68 kB raw / 43.97 kB gzip | 동일 |
+| **테스트 수** | **0** | **24 (4 파일)** | **+24 테스트** |
+| **커버리지 — Statements** | **0%** | **10.93% (131/1198)** | **+10.93%p** |
+| **커버리지 — Branches** | **0%** | **8.80% (83/943)** | **+8.80%p** |
+| **커버리지 — Functions** | **0%** | **14.81% (44/297)** | **+14.81%p** |
+| **커버리지 — Lines** | **0%** | **11.13% (120/1078)** | **+11.13%p** |
+| **CI** | 없음 | 없음 | 미변경 (이번 phase 범위 밖) |
+| **번들 분석 도구** | 없음 | `rollup-plugin-visualizer` 추가 (`stats.html`) | 신규 추가 |
+
+### 5-2. 빌드 산출물 크기 (after)
+
+**빌드 결과**: 성공 (167 modules, 1.27s, tsc -b 포함)
+
+| 파일 | raw | gzip | 분류 |
+|------|-----|------|------|
+| `dist/index.html` | 1.19 kB | 0.50 kB | HTML |
+| `assets/index-*.css` | 33.37 kB | 6.89 kB | CSS |
+| **`assets/index-*.js`** | **206.42 kB** | **65.21 kB** | **앱 메인 청크** |
+| **`assets/vendor-supabase-*.js`** | **168.68 kB** | **43.97 kB** | **vendor 청크** |
+| `assets/vendor-query-*.js` | 35.34 kB | 10.54 kB | vendor 청크 |
+| `assets/vendor-router-*.js` | 34.68 kB | 12.59 kB | vendor 청크 |
+| `assets/vendor-react-*.js` | 11.32 kB | 4.07 kB | vendor 청크 |
+| `assets/ReviewDetail-*.js` | 14.69 kB | 4.39 kB | lazy 청크 |
+| `assets/Login-*.js` | 10.50 kB | 3.71 kB | lazy 청크 |
+| `assets/Cafes-*.js` | 10.16 kB | 4.41 kB | lazy 청크 |
+
+**번들 크기 변화 없음**: 이번 리팩토링·테스트 도입은 소스 로직 추가가 없어 번들 크기는 전후 동일하다. 헤드라인 성과는 테스트 인프라 구축이다.
+
+### 5-3. 테스트 커버리지 (after)
+
+**실행 명령**: `npm run test:cov` (vitest run --coverage)  
+**결과**: 4개 파일, 24개 테스트 모두 통과
+
+| 지표 | 수치 |
+|------|------|
+| Statements | 10.93% (131/1198) |
+| Branches | 8.80% (83/943) |
+| Functions | 14.81% (44/297) |
+| Lines | 11.13% (120/1078) |
+
+**파일별 주요 커버리지**:
+
+| 파일 | Stmts | Branches | Funcs | 비고 |
+|------|-------|----------|-------|------|
+| `src/api/reviews.ts` | 94.73% | 92.30% | 100% | 핵심 API 레이어 집중 테스트 |
+| `src/pages/Reviews.tsx` | 91.22% | 63.33% | 94.11% | 목록 로직 집중 테스트 |
+| `src/stores/authStore.ts` | 48.14% | 40.00% | 62.50% | 인증 흐름 일부 |
+| `src/stores/themeStore.ts` | 51.35% | 35.71% | 55.55% | 테마 토글 일부 |
+| `src/components/Button.tsx` | 100% | 80.00% | 100% | UI 컴포넌트 완전 커버 |
+
+**낮은 전체 커버리지(11%)의 이유**: 대형 페이지 컴포넌트(`Cafes.tsx`, `Login.tsx`, `Profile.tsx` 등)는 카카오 SDK·Supabase 의존성으로 인해 단위 테스트 작성이 어렵고, 이번 phase에서는 핵심 로직 레이어(`api/`, `stores/`, `hooks/`)와 연동이 없는 UI 컴포넌트 위주로 테스트를 작성했다. 커버리지 수치 자체보다 **0개→24개 테스트, 테스트 인프라 완전 부재→Vitest+RTL+MSW 구축** 달성이 이 phase의 실질적 성과다.
+
+### 5-4. 정리 — 이번 하네스 사이클의 실질적 성과
+
+| 분야 | 전 | 후 | 평가 |
+|------|----|----|------|
+| 이미지 CLS 방어 | GameCard·Reviews width/height 없음 | 모든 img에 width·height 추가 | README 주장 사실화 |
+| 환경변수 불일치 | `VITE_KAKAO_MAP_KEY` vs `VITE_KAKAO_JAVASCRIPT_KEY` | 코드·문서 일치 | 로컬 세팅 오류 차단 |
+| 테스트 인프라 | 없음 | Vitest + RTL + MSW 설정 완료 | 향후 테스트 추가 기반 마련 |
+| 테스트 수 | 0 | 24 (4 파일) | +24 |
+| 커버리지 | 0% | 10.93% (statements) | 핵심 레이어 집중 커버 |
+| 번들 분석 | 없음 | rollup-plugin-visualizer 추가 | 청크별 크기 가시화 |

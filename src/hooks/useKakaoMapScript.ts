@@ -10,6 +10,7 @@ export function useKakaoMapScript(): { mapReady: boolean; error: string | null }
   useEffect(() => {
     if (!JS_KEY || !hasKakaoJsKey()) return;
     if (window.kakao?.maps) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMapReady(true);
       return;
     }

@@ -27,3 +27,6 @@ dist-ssr
 *.sw?
 
 .claude
+
+# 번들 분석 리포트 (rollup-plugin-visualizer 생성)
+stats.html
