@@ -29,7 +29,7 @@ npm run lint     # ESLint
 npm run preview  # 빌드 결과 미리보기
 ```
 
-환경 변수는 `.env.local`에 둔다: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_KAKAO_REST_API_KEY`, `VITE_KAKAO_MAP_KEY`, `VITE_ALLOW_REVIEW_CREATE`.
+환경 변수는 `.env.local`에 둔다: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_KAKAO_REST_API_KEY`, `VITE_KAKAO_JAVASCRIPT_KEY`, `VITE_ALLOW_REVIEW_CREATE`.
 
 ## 커밋·푸시 규칙
 
