@@ -243,6 +243,17 @@
 | "Improve image delivery" 경고 | Supabase Storage 이미지에 WebP/AVIF 변환 없음 | `<picture>` 태그 + next-gen 포맷 제공 또는 이미지 CDN(Cloudflare Images 등) 도입 검토 |
 | SEO 83점 (전 페이지) | 메타 description·OG 태그 누락 추정 | `<head>` 메타 태그 보강 |
 
+### 5-4-4 잔여 과제 미착수 사유
+
+| 잔여 문제 | 원인 | 미착수 이유 |
+|-----------|------|------------|
+| LCP 5~6s | Supabase cold start — DB 최초 쿼리 시 컨테이너 웜업 지연 | SSG·Edge Function 전환 필요. SPA 구조 전면 변경으로 이번 리팩토링 범위 초과 |
+| Cache lifetime 경고 | Vercel 무료 플랜 — 정적 자산 캐시 TTL 조정 불가 | 유료 플랜 업그레이드 또는 별도 CDN 도입 필요. 인프라 비용 문제로 보류 |
+| Image delivery 경고 | 이미지 CDN 미도입 — 외부 URL 이미지를 그대로 서빙 | Cloudinary 등 도입 가능하나 Supabase Storage 연동 구조 변경 필요. 범위가 커 별도 작업으로 분리 |
+| CLS 잔존 0.1~0.12 | 동적 콘텐츠 로딩(Supabase 비동기)·폰트 FOUT·조건부 렌더 | img width/height 확실한 원인은 수정 완료. 잔존 CLS는 원인 규명 추가 조사가 필요하며 잘못 건드릴 경우 오히려 악화 위험 |
+
+이미 확실한 원인이 특정된 항목(img width/height 누락)은 수정 완료했고, 남은 항목들은 원인 불명확, 구조 전환 필요, 인프라 비용 등의 이유로 이번 리팩토링 사이클에서 착수하지 않았다. 이는 포트폴리오 목적에서 "할 수 있는 것과 할 수 없는 것을 구분하는 판단력"으로 기록한다.
+
 ### 5-5. 정리 — 이번 하네스 사이클의 실질적 성과
 
 | 분야 | 전 | 후 | 평가 |
