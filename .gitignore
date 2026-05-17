@@ -30,3 +30,6 @@ dist-ssr
 
 # 번들 분석 리포트 (rollup-plugin-visualizer 생성)
 stats.html
+
+# 이력서 초안 (커밋 제외)
+resume-vibeboard-draft.md
