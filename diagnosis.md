@@ -170,7 +170,7 @@
 
 **낮은 전체 커버리지(11%)의 이유**: 대형 페이지 컴포넌트(`Cafes.tsx`, `Login.tsx`, `Profile.tsx` 등)는 카카오 SDK·Supabase 의존성으로 인해 단위 테스트 작성이 어렵고, 이번 phase에서는 핵심 로직 레이어(`api/`, `stores/`, `hooks/`)와 연동이 없는 UI 컴포넌트 위주로 테스트를 작성했다. 커버리지 수치 자체보다 **0개→24개 테스트, 테스트 인프라 완전 부재→Vitest+RTL+MSW 구축** 달성이 이 phase의 실질적 성과다.
 
-### 5-4. Lighthouse 측정 (after)
+### 5-4. Lighthouse 측정 — Before (리팩토링 전)
 
 > 측정일: 2026-05-17 · Chrome 시크릿 모드 · Mode: Navigation · Device: Mobile · 각 페이지 3회 중앙값
 
@@ -189,6 +189,59 @@
 - 메인·후기 계열·카페 페이지 LCP **5.9~6.5s** — Supabase 데이터 fetch 후 렌더. cold start 영향 포함
 - INP 전 페이지 **0ms** — 인터랙션 응답성 우수
 - Best Practices 전 페이지 **100점**
+
+### 5-4-2. Lighthouse 측정 — After (리팩토링 후)
+
+> 측정일: 2026-05-18 · Chrome 시크릿 모드 · Mode: Navigation · Device: Mobile · 각 페이지 3회 중앙값  
+> 리팩토링 내용: `GameCard.tsx`·`Reviews.tsx` 이미지 `width`·`height` 추가 (CLS 방어)
+
+| 페이지 | Performance | Accessibility | Best Practices | SEO | LCP | INP | CLS | FCP |
+|--------|-------------|---------------|----------------|-----|-----|-----|-----|-----|
+| `/` (메인) | **77** | 89 | 100 | 83 | **6.2s** | 0ms | 0.002 | 1.5s |
+| `/games` (게임 목록) | **95** | 93 | 100 | 83 | **2.3s** | 0ms | 0.107 | 1.6s |
+| `/games/:id` (게임 상세) | **72** | 95 | 100 | 83 | **6.6s** | 0ms | **0.123** | 1.5s |
+| `/reviews` (후기 목록) | **75** | 87 | 100 | 83 | **6.0s** | 0ms | 0.107 | 1.6s |
+| `/reviews/:id` (후기 상세) | **75** | 95 | 100 | 83 | **6.5s** | 0ms | 0.092 | 1.6s |
+| `/cafes` (주변 매장) | **75** | 100 | 100 | 82 | **5.9s** | 0ms | 0.105 | 1.5s |
+
+### 5-4-3. Before ↔ After 비교 분석
+
+#### Before ↔ After 수치 비교
+
+| 페이지 | 지표 | Before | After | 변화 |
+|--------|------|--------|-------|------|
+| `/games/:id` | Performance | 62 | 72 | **+10** ✅ |
+| `/games/:id` | CLS | 0.295 | 0.123 | **-0.172** ✅ |
+| `/reviews/:id` | Performance | 74 | 75 | +1 ✅ |
+| `/` | CLS | 0 | 0.002 | -0.002 (측정 오차 범위) |
+| `/games` | Performance | 96 | 95 | -1 (측정 오차 범위) |
+| `/games` | LCP | 1.7s | 2.3s | **+0.6s** ⚠️ |
+| `/reviews` | LCP | 5.9s | 6.0s | +0.1s (측정 오차 범위) |
+| `/reviews/:id` | LCP | 6.4s | 6.5s | +0.1s (측정 오차 범위) |
+
+#### 개선된 항목
+
+- **`/games/:id` CLS: 0.295 → 0.123 (-58%)** — `GameCard.tsx`에 `width`·`height` 속성을 추가함으로써 이미지 로드 전 레이아웃 예약 공간이 확보돼 shift 폭이 절반 이하로 감소. README 주장 "모든 img에 width·height 명시" 실제 코드에서 사실화.
+- **`/games/:id` Performance: 62 → 72 (+10점)** — CLS 감소가 성능 점수에 직접 반영. CLS는 Lighthouse 점수 산정에서 가중치가 높아 점수 상승 폭이 큼.
+- **`/` CLS: 0 → 0.002** — 수치 자체는 소폭 상승이나 0.002는 "Good" 범위(< 0.1)이므로 실질적 문제 없음. 측정 회차 간 변동 범위 내.
+- **INP 전 페이지 0ms 유지** — 리팩토링 후에도 인터랙션 응답성 저하 없음.
+- **Best Practices 전 페이지 100점 유지**.
+
+#### 악화된 항목 및 원인 분석
+
+- **`/games` LCP: 1.7s → 2.3s (+0.6s)** — `/games` 페이지 자체에 width/height를 추가한 이미지가 포함되어 있으나, LCP 후보 요소가 이미지에서 텍스트 블록으로 바뀌었을 가능성이 있음. Lighthouse가 측정하는 LCP 후보 요소가 측정 회차마다 달라질 수 있고, 0.6s 차이는 Supabase cold start·CDN 캐시 상태에 따른 네트워크 변동 범위에도 해당함. 단일 수치만으로 "악화"로 단정하기 어렵고, 동일 조건 재측정이 필요.
+- **`/games/:id` CLS 잔존 (0.123)** — `width`·`height` 추가로 이미지 CLS는 줄었으나 0.1(Good 기준) 초과. "Layout shift culprits" 경고가 잔존한다는 의미로, img 태그 외 다른 요소(Supabase에서 비동기 로드되는 텍스트 블록, 리뷰 카드의 조건부 렌더링, 폰트 FOUT 등)에서 추가 shift가 발생하고 있을 가능성이 높음.
+- **`/games` Performance: 96 → 95 (-1점)** — 1점 차이는 Lighthouse 측정 오차 범위(±5점 내외)이므로 실질적 악화로 보기 어려움.
+
+#### 잔여 과제
+
+| 항목 | 현황 | 권고 |
+|------|------|------|
+| `/games/:id` CLS 0.123 잔존 | "Good" 기준(< 0.1) 미달. "Layout shift culprits" 경고 잔존 | img 외 동적 콘텐츠(Supabase 응답 텍스트, 조건부 렌더)에 skeleton UI 또는 `min-height` 예약 적용 |
+| 메인·후기·카페 LCP 5.9~6.6s | Supabase 데이터 fetch 완료 후 렌더 → cold start 영향 | Supabase Edge Function으로 응답 시간 개선 또는 SSG/ISR 전환(현재 Vercel SPA 배포 구조상 단기 적용 어려움) |
+| "Use efficient cache lifetimes" 경고 | Vercel 무료 플랜에서 CDN 캐시 TTL 제어 제한 | 유료 플랜 또는 커스텀 캐시 헤더 설정 필요 (현재 포트폴리오 범위 초과) |
+| "Improve image delivery" 경고 | Supabase Storage 이미지에 WebP/AVIF 변환 없음 | `<picture>` 태그 + next-gen 포맷 제공 또는 이미지 CDN(Cloudflare Images 등) 도입 검토 |
+| SEO 83점 (전 페이지) | 메타 description·OG 태그 누락 추정 | `<head>` 메타 태그 보강 |
 
 ### 5-5. 정리 — 이번 하네스 사이클의 실질적 성과
 
