@@ -28,6 +28,8 @@ function GameCard({ game, index }: GameCardProps) {
             src={game.image_url}
             alt={game.name}
             className="w-full h-full object-cover"
+            width={300}
+            height={300}
           />
         ) : (
           <div className="w-full h-full bg-bg-muted"></div>

@@ -46,6 +46,8 @@ export function ReviewDetailHeader({ review }: ReviewDetailHeaderProps) {
                 src={review.boardgame.image_url}
                 alt={review.boardgame.name}
                 className="w-16 h-16 object-cover rounded-lg"
+                width={64}
+                height={64}
               />
             )}
             <div>

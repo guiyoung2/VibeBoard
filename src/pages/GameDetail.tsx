@@ -85,6 +85,8 @@ function GameDetail() {
                 src={game.image_url}
                 alt={game.name}
                 className="w-full h-auto rounded-lg shadow-md object-contain"
+                width={560}
+                height={420}
               />
             ) : (
               <div className="w-full aspect-video bg-bg-muted rounded-lg"></div>
