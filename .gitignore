@@ -10,7 +10,6 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-coverage
 *.local
 .env
 .env.local
@@ -29,8 +28,15 @@ coverage
 
 .claude
 
-# 번들 분석 리포트 (rollup-plugin-visualizer 생성)
+# 하네스 진단·측정 산출물 (로컬 보관, 면접·이력서 근거 자료)
+diagnosis.md
+resume-logofreview-draft.md
+
+# 번들 분석 리포트
 stats.html
+
+# 테스트 커버리지 HTML 리포트 (생성 파일)
+coverage
 
 # 이력서 초안 (커밋 제외)
 resume-vibeboard-draft.md
