@@ -55,3 +55,51 @@
 | **4** | `Reviews.tsx` 수동 조인 → Supabase PostgREST 관계 쿼리 리팩토링 | 현재 3번 개별 쿼리 → 1번 쿼리로 단순화 가능. TanStack Query "일관 처리" 주장 강화 | 중간 | 네트워크 왕복 감소, 코드 간결화 |
 | **5** | React Router 7 `loader` 도입 또는 선택 이유 수정 | 스택 선택 이유가 코드로 증명되지 않음. 한 라우트라도 loader 적용하면 주장 사실화 | 중간 | 이력서 "데이터 라우팅 활용" 근거 생성 |
 | **6** | `useKakaoMapScript.ts` 환경변수 변수명 정리 (`JS_KEY` 리네임) | 코드 내 변수명이 문서와 혼선을 주는 보조 문제 | 낮음 | 가독성 개선 |
+
+---
+
+## 4. 측정 베이스라인 (before)
+
+> 측정일: 2026-05-17 · 브랜치: `harness/refactor-cycle` · 빌드: `tsc -b && vite build`
+
+### 4-1. 빌드 산출물 크기
+
+**빌드 결과**: 성공 (167 modules, 1.38s)  
+**dist 총합**: 약 1.4 MB (raw 560.79 kB / gzip 170.73 kB)
+
+| 파일 | raw | gzip | 분류 |
+|------|-----|------|------|
+| `dist/index.html` | 1.19 kB | 0.50 kB | HTML |
+| `assets/index-*.css` | 33.35 kB | 6.89 kB | CSS (전체) |
+| **`assets/index-*.js`** | **206.42 kB** | **65.21 kB** | **앱 메인 청크** |
+| **`assets/vendor-supabase-*.js`** | **168.68 kB** | **43.97 kB** | **vendor 청크** |
+| `assets/vendor-query-*.js` | 35.34 kB | 10.54 kB | vendor 청크 |
+| `assets/vendor-router-*.js` | 34.68 kB | 12.59 kB | vendor 청크 |
+| `assets/vendor-react-*.js` | 11.32 kB | 4.07 kB | vendor 청크 |
+| `assets/ReviewDetail-*.js` | 14.69 kB | 4.39 kB | lazy 청크 |
+| `assets/Login-*.js` | 10.50 kB | 3.71 kB | lazy 청크 |
+| `assets/Cafes-*.js` | 10.16 kB | 4.41 kB | lazy 청크 |
+| `assets/Profile-*.js` | 7.41 kB | 2.85 kB | lazy 청크 |
+| `assets/Games-*.js` | 7.22 kB | 2.71 kB | lazy 청크 |
+| `assets/Reviews-*.js` | 5.75 kB | 2.31 kB | lazy 청크 |
+| `assets/ReviewCreate-*.js` | 4.70 kB | 1.82 kB | lazy 청크 |
+| `assets/GameDetail-*.js` | 3.01 kB | 1.32 kB | lazy 청크 |
+| `assets/NicknameSetup-*.js` | 2.88 kB | 1.28 kB | lazy 청크 |
+| `assets/AuthCallback-*.js` | 1.22 kB | 0.74 kB | lazy 청크 |
+| `assets/ErrorMessageWithRetry-*.js` | 0.88 kB | 0.51 kB | lazy 청크 |
+| `assets/StarRating-*.js` | 0.81 kB | 0.50 kB | lazy 청크 |
+| `assets/useInfiniteDisplay-*.js` | 0.58 kB | 0.41 kB | lazy 청크 |
+
+**주목 지점**: `index-*.js` (앱 메인, 206 kB raw / 65 kB gzip)이 가장 큰 단일 청크. `vendor-supabase` (169 kB raw)가 전체 번들의 약 30%를 차지.
+
+### 4-2. 테스트 커버리지
+
+- **0%** — 테스트 파일 없음 (`*.test.*`, `*.spec.*` 미존재)
+
+### 4-3. CI
+
+- **없음** — `.github/workflows/` 미존재, CI 파이프라인 미설정
+
+### 4-4. Lighthouse
+
+- **미측정** — `measure` phase의 Lighthouse step에서 측정 예정
