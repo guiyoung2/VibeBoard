@@ -17,6 +17,8 @@
 **Live**: [vibeboard-nine.vercel.app](https://vibeboard-nine.vercel.app)
 **Repo**: [github.com/guiyoung2/VibeBoard](https://github.com/guiyoung2/VibeBoard)
 
+![홈 화면](docs/images/main.png)
+
 ---
 
 ## 1. 현재 품질 지표 (스냅샷)
@@ -92,17 +94,28 @@
 
 ### 게임 추천 (`/games`)
 
+![게임 목록 화면](docs/images/games.png)
+
 - Supabase 보드게임 목록 카드 렌더 (게임명·이미지·카테고리·인원·플레이 시간)
 - **상세 페이지** (`/games/:id`): 상세 정보 + 관련 리뷰 목록
 
+![게임 상세 화면](docs/images/detail.png)
+
 ### 게임 후기 (`/reviews`)
+
+![후기 목록 화면](docs/images/reviews.png)
 
 - 보드게임별·평점별 필터·정렬
 - **리뷰 상세** (`/reviews/:id`): 작성자·평점·내용, 본인 글만 수정/삭제
+
+![리뷰 상세 화면](docs/images/review-detail.png)
+
 - **리뷰 작성** (`/reviews/create`): 로그인 후 보드게임 선택·평점·내용 입력
   - 배포 환경에선 `VITE_ALLOW_REVIEW_CREATE` 플래그로 등록 비활성화 가능 (실제 DB 쓰기 차단)
 
 ### 주변 카페 (`/cafes`)
+
+![주변 카페 지도 화면](docs/images/maps.png)
 
 - **현재 위치 기반**: `navigator.geolocation` → 좌표로 카카오 Local API 키워드 검색 (반경 5km)
 - **검색어 기반**: 역·동 등 키워드로 좌표 1건 조회 후, 그 좌표 기준 동일 키워드 검색
