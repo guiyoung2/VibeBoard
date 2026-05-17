@@ -337,6 +337,8 @@ function Profile() {
                                   src={review.boardgame.image_url}
                                   alt=""
                                   className="w-12 h-12 object-cover rounded flex-shrink-0"
+                                  width={48}
+                                  height={48}
                                 />
                               )}
                               <div className="min-w-0">

@@ -265,6 +265,8 @@ function Reviews() {
                               src={review.boardgame.image_url}
                               alt={review.boardgame.name}
                               className="w-12 h-12 object-cover rounded"
+                              width={48}
+                              height={48}
                             />
                           )}
                           <span className="font-medium text-accent">

@@ -1,5 +1,7 @@
+/// <reference types="vitest/config" />
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -12,6 +14,8 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
+      // 번들 구성 시각화 리포트 생성 (stats.html, .gitignore 처리됨)
+      visualizer({ open: false, filename: 'stats.html', gzipSize: true }),
       // 빌드 시 LCP 이미지 URL을 HTML에 preload 힌트로 주입해 브라우저가 JS 실행 전에 미리 요청하게 한다.
       {
         name: 'inject-lcp-preload',
@@ -32,6 +36,18 @@ export default defineConfig(({ mode }) => {
             'vendor-supabase': ['@supabase/supabase-js'],
           },
         },
+      },
+    },
+    test: {
+      environment: 'jsdom',
+      globals: true,
+      passWithNoTests: true,
+      setupFiles: ['./src/test/setup.ts'],
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'html'],
+        include: ['src/**/*.{ts,tsx}'],
+        exclude: ['src/test/**', 'src/main.tsx', 'src/**/*.d.ts'],
       },
     },
   }
